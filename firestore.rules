@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function adminEmail() { return 'admin@example.com'; }
+    function adminUid() { return 'REPLACE_WITH_ADMIN_UID'; }
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == adminEmail() ||
+        request.auth.uid == adminUid()
+      );
+    }
+
+    function orderKeys() {
+      return [
+        'id','productId','productTitle','userId','username','email','price','time','paymentMethod','status',
+        'senderName','customerAccountName','notes','hasReceipt','receiptUrl','submittedAt','timeline'
+      ];
+    }
+
+    function isSafeOrderPayload() {
+      return request.resource.data.keys().hasOnly(orderKeys())
+      && request.resource.data.id is string
+      && request.resource.data.productId is string
+      && request.resource.data.productTitle is string
+      && request.resource.data.userId is string
+      && request.resource.data.username is string
+      && request.resource.data.email is string
+      && request.resource.data.price is number
+      && request.resource.data.status in ['pending_payment','under_review']
+      && request.resource.data.userId == request.auth.uid
+      && request.resource.data.price >= 0;
+    }
+
+    match /products/{doc}    { allow read: if true; allow write: if isAdmin(); }
+    match /categories/{doc}  { allow read: if true; allow write: if isAdmin(); }
+    match /sliders/{doc}     { allow read: if true; allow write: if isAdmin(); }
+    match /banners/{doc}     { allow read: if true; allow write: if isAdmin(); }
+    match /cards/{doc}       { allow read: if true; allow write: if isAdmin(); }
+    match /reviews/{doc}     { allow read: if true; allow write: if isAdmin(); }
+    match /settings/{doc}    { allow read: if true; allow write: if isAdmin(); }
+    match /paymentMethods/{doc} { allow read: if true; allow write: if isAdmin(); }
+
+    match /orders/{doc} {
+      allow create: if isSignedIn() && isSafeOrderPayload();
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

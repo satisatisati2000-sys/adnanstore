@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 | Vault Store</title>
+  <meta name="description" content="Vault Store">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <script>
+    window.__STORE_BOOT__ = {
+      brandId: 'vault-store',
+      storeName: 'Vault Store',
+      description: 'واجهة داكنة أكثر نضجًا مع أقسام أغنى، بنرات أوضح، وإدارة كاملة من لوحة تحكم واحدة.',
+      theme: {
+        bg: '#07080C', bg2: '#0E1118', surface: '#141924', surface2: '#1B2130', primary: '#C8A06B', primaryDark: '#8F663E', primaryLight: '#F2E4CD', maroon: '#604731', text: '#F8F3EE', text2: '#D9CEC3', muted: '#9E9389', line: 'rgba(242,228,205,0.12)', glow: 'rgba(200,160,107,0.22)'
+      }
+    };
+    (function () {
+      const boot = window.__STORE_BOOT__;
+      const root = document.documentElement;
+      root.dataset.brand = boot.brandId;
+      root.style.setProperty('--bg', boot.theme.bg);
+      root.style.setProperty('--bg-2', boot.theme.bg2);
+      root.style.setProperty('--surface', boot.theme.surface);
+      root.style.setProperty('--surface-2', boot.theme.surface2);
+      root.style.setProperty('--primary', boot.theme.primary);
+      root.style.setProperty('--primary-dark', boot.theme.primaryDark);
+      root.style.setProperty('--primary-light', boot.theme.primaryLight);
+      root.style.setProperty('--maroon', boot.theme.maroon);
+      root.style.setProperty('--text', boot.theme.text);
+      root.style.setProperty('--text-2', boot.theme.text2);
+      root.style.setProperty('--muted', boot.theme.muted);
+      root.style.setProperty('--line', boot.theme.line);
+      root.style.setProperty('--glow', boot.theme.glow);
+      root.style.colorScheme = 'dark';
+      const desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute('content', boot.description);
+      if (document.title && !document.title.includes(boot.storeName)) {
+        document.title = document.title.includes('|') ? `${document.title.split('|')[0].trim()} | ${boot.storeName}` : boot.storeName;
+      }
+    })();
+  </script>
+</head>
+<body data-page="404">
+  <div class="page-shell">
+    <div id="topbarHost"></div>
+
+<main class="container">
+  <section class="section" id="notFoundHost"></section>
+</main>
+
+    <div id="footerHost"></div>
+    <div id="bottomNavHost"></div>
+  </div>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

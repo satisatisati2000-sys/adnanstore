@@ -1,0 +1,65 @@
+[
+  {
+    "id": "review_01",
+    "name": "مستخدم موثق",
+    "image": "./images/avatars/avatar-01.svg",
+    "text": "الواجهة أنظف بكثير من القوالب العادية وتحسها جاهزة للبيع مباشرة.",
+    "rating": 5,
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "review_02",
+    "name": "مشتري جديد",
+    "image": "./images/avatars/avatar-02.svg",
+    "text": "تقسيم البنرات والأقسام مريح جدًا خصوصًا على الجوال.",
+    "rating": 5,
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "review_03",
+    "name": "عميل دائم",
+    "image": "./images/avatars/avatar-03.svg",
+    "text": "الأدمن سهل ويخليك تعدل الصور والنصوص والمنتجات بدون صداع.",
+    "rating": 5,
+    "order": 3,
+    "active": true
+  },
+  {
+    "id": "review_04",
+    "name": "عميل متكرر",
+    "image": "./images/avatars/avatar-01.svg",
+    "text": "المتجر صار غني جدًا بالأقسام والمنتجات، والوصول للعروض أسهل بكثير.",
+    "rating": 5,
+    "order": 4,
+    "active": true
+  },
+  {
+    "id": "review_05",
+    "name": "مشتري موثق",
+    "image": "./images/avatars/avatar-02.svg",
+    "text": "أكثر شيء عجبني تناسق البطاقات بالعرض وسهولة تصفحها من الجوال.",
+    "rating": 5,
+    "order": 5,
+    "active": true
+  },
+  {
+    "id": "review_06",
+    "name": "عميل جديد",
+    "image": "./images/avatars/avatar-03.svg",
+    "text": "الواجهة صارت تعطي إحساس متجر مكتمل فعلاً وليس قالبًا بسيطًا.",
+    "rating": 4,
+    "order": 6,
+    "active": true
+  },
+  {
+    "id": "review_07",
+    "name": "مستخدم مميز",
+    "image": "./images/avatars/avatar-04.svg",
+    "text": "لوحة التحكم أسهل، وتعديل الصور والتقييمات صار مباشرًا وواضحًا.",
+    "rating": 5,
+    "order": 7,
+    "active": true
+  }
+]
