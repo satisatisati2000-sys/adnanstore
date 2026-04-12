@@ -83,7 +83,7 @@ const state = {
 
 let adminFailCount = 0;
 let adminLockUntil = 0;
-const RECEIPTS_KEY = 'vault_receipts_v1';
+const RECEIPTS_KEY = 'adnan_receipts_v1';
 
 const PAYMENT_METHODS_KEY = 'adnan_payment_methods_v1';
 
@@ -352,7 +352,7 @@ function buyNowById(productId) {
   if (!product) return showToast('المنتج غير موجود', 'error');
   addToCart(product);
   updateCartBadges();
-  showToast('تمت الإضافة إلى السلة', 'success');
+  goTo(`${rel('pages/checkout.html')}?product=${encodeURIComponent(productId)}`);
 }
 
 function goTo(url) { window.location.href = url; }
@@ -645,14 +645,30 @@ function sanitizeUrl(url = '') {
 }
 
 function resolveTarget(item = {}) {
-  if (item.customUrl) return sanitizeUrl(item.customUrl);
-  const type = item.targetType;
+  const type = String(item.targetType || '').toLowerCase();
+  const customUrl = String(item.customUrl || '').trim();
+  if (type === 'custom' && customUrl) return sanitizeUrl(customUrl);
+  if (customUrl && !type) return sanitizeUrl(customUrl);
+
   const targetId = item.targetId || item.productId || item.subcategoryId || item.categoryId;
-  if (type === 'product' || item.productId) return `${rel('pages/product.html')}?id=${encodeURIComponent(targetId)}`;
-  if (type === 'subcategory' || item.subcategoryId) return `${rel('pages/category.html')}?category=${encodeURIComponent(item.categoryId || '')}&subcategory=${encodeURIComponent(targetId || item.subcategoryId || '')}`;
-  if (type === 'category' || item.categoryId) return `${rel('pages/category.html')}?category=${encodeURIComponent(targetId || item.categoryId || '')}`;
-  if (type === 'section' && item.sectionId) return `${rel('index.html')}#${item.sectionId}`;
-  return '#';
+
+  if (type === 'product' || item.productId) {
+    const pid = item.productId || targetId;
+    return pid ? `${rel('pages/product.html')}?id=${encodeURIComponent(pid)}` : '#';
+  }
+  if (type === 'subcategory' || item.subcategoryId) {
+    const sid = item.subcategoryId || targetId;
+    const cid = item.categoryId || '';
+    return sid ? `${rel('pages/category.html')}?category=${encodeURIComponent(cid)}&subcategory=${encodeURIComponent(sid)}` : '#';
+  }
+  if (type === 'category' || item.categoryId) {
+    const cid = item.categoryId || targetId;
+    return cid ? `${rel('pages/category.html')}?category=${encodeURIComponent(cid)}` : '#';
+  }
+  if (type === 'section' && (item.sectionId || targetId)) {
+    return `${rel('index.html')}#${item.sectionId || targetId}`;
+  }
+  return customUrl ? sanitizeUrl(customUrl) : '#';
 }
 
 function buildSearchDrawer() {
@@ -915,16 +931,24 @@ function bindChromeEvents() {
   });
   window.__openStoreCategoryDrawer = openCategoryDrawer;
   window.__closeStoreCategoryDrawer = closeCategoryDrawer;
-  document.addEventListener('click', (e) => {
-    const parentTab = e.target.closest('[data-parent-tab]');
-    if (!parentTab) return;
-    e.preventDefault();
-    state.categoryDrawerParentId = parentTab.dataset.parentTab || '';
-    const current = document.getElementById('categoryDrawer');
-    if (current) current.outerHTML = buildCategoryDrawer();
-    bindChromeEvents();
-    openCategoryDrawer();
-  }, true);
+  if (!document.body.dataset.drawerTabDelegated) {
+    document.addEventListener('click', (e) => {
+      const parentTab = e.target.closest('[data-parent-tab]');
+      if (!parentTab) return;
+      e.preventDefault();
+      e.stopPropagation();
+      state.categoryDrawerParentId = parentTab.dataset.parentTab || '';
+      const current = document.getElementById('categoryDrawer');
+      if (current) {
+        current.outerHTML = buildCategoryDrawer();
+        // Since we replaced the outerHTML, we need to re-bind the local events
+        // But we must be careful not to re-bind global ones.
+        // Let's call a smaller binding function instead.
+        bindCategoryDrawerInteractions();
+      }
+    }, true);
+    document.body.dataset.drawerTabDelegated = '1';
+  }
   document.addEventListener('click', (e) => {
     const hashLink = e.target.closest('a[href="#"]');
     if (!hashLink) return;
@@ -1147,8 +1171,9 @@ function renderCharacterCarouselSection() {
   host.innerHTML = `<div class="section-head"><h2 class="section-title">شخصيات متحركة</h2></div><div class="character-carousel-viewport"><div class="character-carousel-track auto-marquee">${doubled.map(item => `<a class="character-carousel-card" href="${resolveTarget(item)}"><img class="character-carousel-media" src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.subtitle || item.title || 'شخصية')}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'"><span class="character-carousel-label">${escapeHtml(item.subtitle || item.title || 'شخصية')}</span></a>`).join('')}</div></div>`;
 }
 
-function renderProductCard(item) {
-  return `<article class="product-card product-card--horizontal">
+function renderProductCard(item, variant = 'horizontal') {
+  const cls = variant === 'portrait' ? 'product-card--portrait' : 'product-card--horizontal';
+  return `<article class="product-card ${cls}">
     <a class="product-media-link" href="${rel('pages/product.html')}?id=${encodeURIComponent(item.id)}">
       <img class="product-media" src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'">
       ${item.badge ? `<span class="badge">${escapeHtml(item.badge)}</span>` : ''}
@@ -1159,7 +1184,10 @@ function renderProductCard(item) {
         <strong class="price-current">${escapeHtml(formatCurrency(item.price))}</strong>
         ${item.oldPrice ? `<span class="price-old">${escapeHtml(formatCurrency(item.oldPrice))}</span>` : ''}
       </div>
-      <div class="product-actions"><a class="btn btn-secondary full" href="${rel('pages/product.html')}?id=${encodeURIComponent(item.id)}">استعرض</a><button class="btn btn-primary full" data-add-to-cart="${item.id}" type="button">اشتر الآن</button></div>
+      <div class="product-actions">
+        <a class="btn btn-secondary full" href="${rel('pages/product.html')}?id=${encodeURIComponent(item.id)}">استعرض</a>
+        <button class="btn btn-primary full" data-add-to-cart="${item.id}" type="button">اشتر الآن</button>
+      </div>
     </div>
   </article>`;
 }
@@ -1386,12 +1414,13 @@ function renderProductPage() {
         </div>
         ${item.deliveryText ? `<div class="muted">${escapeHtml(item.deliveryText)}</div>` : ''}
         ${item.description ? `<p class="product-copy">${escapeHtml(item.description)}</p>` : '<p class="product-copy">منتج جاهز للشراء مع عرض الاسم والصورة والسعر والوصف بشكل واضح.</p>'}
+        ${item.details ? `<div class="product-details-extra">${escapeHtml(item.details)}</div>` : ''}
         <div class="product-feature-list">
           <span class="product-feature-chip">تسليم سريع</span>
           <span class="product-feature-chip">آمن ومضمون</span>
           <span class="product-feature-chip">دعم مباشر</span>
         </div>
-        ${usingFallbackItem ? '<div class="muted">تم عرض أول منتج متاح لأن الرابط المطلوب غير صالح.</div>' : ''}
+        ${usingFallbackItem ? '<div class="muted" style="margin-top:10px;font-size:0.8rem">تم عرض أول منتج متاح لأن الرابط المطلوب غير صالح.</div>' : ''}
         <div class="product-actions product-actions--rich">
           <button class="btn btn-primary" data-add-to-cart="${item.id}" type="button">أضف للسلة</button>
           <button class="btn btn-secondary" data-buy-now="${item.id}" type="button">اشتر الآن</button>
@@ -1399,8 +1428,8 @@ function renderProductPage() {
       </div>
     </section>
     <section class="section">
-      <div class="section-head"><h2 class="section-title">مشابهة</h2></div>
-      ${related.length ? `<div class="rail product-rail">${related.map(renderProductCard).join('')}</div>` : emptyState('لا توجد منتجات مشابهة')}
+      <div class="section-head"><h2 class="section-title">منتجات مشابهة</h2></div>
+      ${related.length ? `<div class="rail product-rail">${related.map(p => renderProductCard(p, 'portrait')).join('')}</div>` : emptyState('لا توجد منتجات مشابهة')}
     </section>`;
   if ((!requestedId || usingFallbackItem) && window.history?.replaceState) {
     const url = new URL(window.location.href);
@@ -1865,15 +1894,17 @@ function validateAdminKey(key = '') {
   }
   return true;
 }
+
+function adminSchema() {
   return {
     orders: [],
     payments: [ ['title','text','اسم الطريقة'], ['displayName','text','الاسم الظاهر'], ['group','text','المجموعة bank/direct'], ['accountHolder','text','اسم صاحب الحساب'], ['accountNumber','text','رقم الحساب/البطاقة'], ['iban','text','الآيبان'], ['extraFields','textarea','الحقول الإضافية label:value بكل سطر'], ['instructions','textarea','تعليمات الدفع'], ['icon','text','الأيقونة'], ['enabled','checkbox','مفعلة'], ['order','number','الترتيب'] ],
     settings: [ ['storeName','text','اسم المتجر'], ['logoUrl','url','رابط الشعار'], ['tagline','text','الوصف القصير'], ['instagramUrl','url','رابط إنستغرام'], ['whatsappNumber','text','رقم واتساب'], ['defaultCurrency','text','العملة الافتراضية'], ['heroBadge','text','شارة الهيرو'], ['heroTitle','text','عنوان الهيرو'], ['heroText','textarea','نص الهيرو'], ['footerText','text','نص الفوتر'], ['tickerText','text','النص المتحرك أعلى الموقع'], ['tickerTargetType','text','نوع رابط الشريط المتحرك'], ['tickerCategoryId','text','معرف فئة الشريط'], ['tickerSubcategoryId','text','معرف تفرع الشريط'], ['tickerCustomUrl','url','رابط مخصص للشريط'], ['bgColor','color','لون الخلفية'], ['bg2Color','color','الخلفية الثانوية'], ['surfaceColor','color','لون البطاقات'], ['surface2Color','color','سطح ثانوي'], ['primaryColor','color','اللون الرئيسي'], ['primaryDarkColor','color','اللون الرئيسي الداكن'], ['primaryLightColor','color','اللون الفاتح'], ['maroonColor','color','لون داعم'], ['textColor','color','لون النص الرئيسي'], ['text2Color','color','لون النص الثانوي'], ['mutedColor','color','اللون الهادئ'], ['active','checkbox','المتجر فعال'] ],
-    sliders: [ ['title','text'], ['image','url'], ['ctaLabel','text'], ['targetType','text'], ['targetId','text'], ['categoryId','text'], ['subcategoryId','text'], ['productId','text'], ['customUrl','url'], ['order','number'], ['active','checkbox'] ],
-    banners: [ ['title','text'], ['image','url'], ['targetType','text'], ['targetId','text'], ['categoryId','text'], ['subcategoryId','text'], ['productId','text'], ['customUrl','url'], ['order','number'], ['active','checkbox'] ],
-    cards: [ ['title','text'], ['subtitle','text','نص إضافي'], ['image','url'], ['icon','text'], ['cardKind','text'], ['sectionId','text'], ['categoryId','text'], ['subcategoryId','text'], ['targetType','text'], ['targetId','text'], ['customUrl','url'], ['order','number'], ['active','checkbox'] ],
-    categories: [ ['name','text'], ['icon','text'], ['image','url'], ['subtitle','text'], ['description','text'], ['parentId','text'], ['order','number'], ['active','checkbox'] ],
-    products: [ ['name','text'], ['price','number'], ['oldPrice','number'], ['badge','text'], ['image','url'], ['categoryId','text'], ['subcategoryId','text'], ['deliveryText','text'], ['description','text'], ['details','text'], ['order','number'], ['active','checkbox'] ],
+    sliders: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['ctaLabel','text','نص الزر'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['productId','text','معرف المنتج'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    banners: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['productId','text','معرف المنتج'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    cards: [ ['title','text','العنوان'], ['subtitle','text','نص إضافي/فرعي'], ['image','url','رابط الصورة'], ['icon','text','أيقونة'], ['cardKind','text','النوع (section/shortcut/vertical-character/character-carousel/character)'], ['sectionId','text','معرف القسم'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    categories: [ ['name','text','الاسم'], ['icon','text','الأيقونة'], ['image','url','رابط الصورة'], ['subtitle','text','عنوان فرعي'], ['description','text','الوصف'], ['parentId','text','معرف التصنيف الأب (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    products: [ ['name','text','الاسم'], ['price','number','السعر'], ['oldPrice','number','السعر القديم'], ['badge','text','الشارة (مثل: جديد/خصم)'], ['image','url','رابط الصورة'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['deliveryText','text','نص مدة التسليم'], ['description','text','الوصف القصير'], ['details','textarea','تفاصيل المنتج (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
     reviews: [ ['name','text'], ['image','url','صورة العميل'], ['text','text'], ['rating','number'], ['order','number'], ['active','checkbox'] ]
   };
 }
@@ -1908,13 +1939,13 @@ function renderOrdersAdminPanel() {
 function renderAdminPage() {
   renderAdminGate();
   if (!state.adminUnlocked) return;
-  const host = $('#adminHost');
+  const host = $('#adminPageHost');
   if (!host) return;
   const schema = adminSchema();
   host.innerHTML = `
     <div class="admin-card stack">
       <div class="admin-toolbar">
-        <div class="admin-toolbar-copy"><strong>لوحة التحكم الشاملة</strong><span class="muted">عدّل الشعار، الصور، البنرات، الشريط المتحرك، الفئات، المنتجات، والروابط من مكان واحد.</span></div>
+        <div class="admin-toolbar-copy"><strong>لوحة التحكم الشاملة</strong><span class="muted">عدّل الشعار، الصور، البنرات، الشريط المتحرك، التصنيفات، المنتجات، والروابط من مكان واحد.</span></div>
         <div class="admin-toolbar-actions">
           <button class="btn btn-primary" id="seedBtn" type="button">تهيئة المشروع</button>
           <button class="btn btn-secondary" id="logoutBtn" type="button">قفل الأدمن</button>
@@ -2198,6 +2229,13 @@ function bindAccordionCategoryTriggers(scope=document) {
   });
 }
 
+function bindCategoryDrawerInteractions() {
+  const drawer = document.getElementById('categoryDrawer');
+  if (!drawer) return;
+  bindInlineCategorySelection(drawer);
+  bindAccordion(drawer);
+}
+
 function bindInlineCategorySelection(scope=document) {
   bindAccordionCategoryTriggers(scope);
   const closeDrawer = () => {
@@ -2470,19 +2508,18 @@ async function init() {
   mergeLocalCmsIntoState();
   ensureSeedFallbackCollections();
   if (!state.settings) state.settings = mergeBrandSettings(LOCAL_SEED.settings?.data || {});
-  applyTheme();
-  applyDocumentBranding();
-  renderChrome();
-  renderPageSkeletons();
-  rerenderVisiblePage();
-  updateCartBadges();
+
   const firebaseOk = await initFirebase();
   if (firebaseOk) {
     await loadRemoteContent();
     ensureSeedFallbackCollections();
-    applyTheme();
-    rerenderVisiblePage();
   }
+
+  applyTheme();
+  applyDocumentBranding();
+  renderChrome();
+  rerenderVisiblePage();
+  updateCartBadges();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

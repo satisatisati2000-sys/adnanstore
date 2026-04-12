@@ -1,12 +1,12 @@
-export const LOCAL_SEED = {
+{
   "settings": {
     "docId": "store",
     "data": {
       "docId": "store",
       "data": {
         "storeName": "متجر فولت",
-        "brandingId": "vault-store",
-        "storeSlug": "vault-store",
+        "brandingId": "adnan-store",
+        "storeSlug": "adnan-store",
         "tagline": "متجر رقمي داكن وفاخر جاهز للبيع والتخصيص الكامل",
         "whatsappNumber": "",
         "instagramUrl": "",
@@ -31,7 +31,7 @@ export const LOCAL_SEED = {
         "lineColor": "rgba(245,227,200,0.12)",
         "glowColor": "rgba(214,168,106,0.22)"
       },
-      "storeName": "متجر عربي احترافي",
+      "storeName": "متجر عدنان",
       "brandingId": "adnan-core",
       "storeSlug": "adnan-core",
       "tagline": "متجر عربي داكن وغني بالأقسام والعروض، جاهز للتخصيص الكامل من الأدمن.",
@@ -774,6 +774,44 @@ export const LOCAL_SEED = {
       "customUrl": "",
       "order": 104,
       "active": true
+    },
+    {
+      "id": "character_01",
+      "title": "شانكس",
+      "subtitle": "جواهر + شانكس",
+      "image": "./images/cards/card-01.webp",
+      "cardKind": "character",
+      "targetType": "subcategory",
+      "categoryId": "cat_accounts",
+      "subcategoryId": "sub_accounts_rare",
+      "targetId": "sub_accounts_rare",
+      "active": true,
+      "order": 951
+    },
+    {
+      "id": "character_02",
+      "title": "أكاينو",
+      "subtitle": "عروض + أكاينو",
+      "image": "./images/cards/card-02.webp",
+      "cardKind": "character",
+      "targetType": "subcategory",
+      "categoryId": "cat_boost",
+      "subcategoryId": "sub_boost_flash",
+      "targetId": "sub_boost_flash",
+      "active": true,
+      "order": 952
+    },
+    {
+      "id": "character_03",
+      "title": "اللحية السوداء",
+      "subtitle": "قوالب + عروض",
+      "image": "./images/cards/card-03.webp",
+      "cardKind": "character",
+      "targetType": "category",
+      "categoryId": "cat_ready",
+      "targetId": "cat_ready",
+      "active": true,
+      "order": 953
     }
   ],
   "reviews": [
@@ -841,4 +879,4 @@ export const LOCAL_SEED = {
       "active": true
     }
   ]
-};
+}

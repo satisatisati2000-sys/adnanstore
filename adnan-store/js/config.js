@@ -30,15 +30,15 @@ export const firebaseConfig = resolvedFirebaseConfig;
 const runtimeAppConfig = runtimeConfig.app || {};
 
 export const APP_CONFIG = {
-  BRAND_ID: 'adnan-core',
-  STORE_NAME: 'متجر عربي احترافي',
-  STORE_NAME_AR: 'متجر عربي احترافي',
+  BRAND_ID: 'adnan-store',
+  STORE_NAME: 'متجر عدنان',
+  STORE_NAME_AR: 'متجر عدنان',
   STORE_TAGLINE: 'نسخة مبسطة تعمل على Firebase المجاني مع Cloudinary لصور المنتجات',
   WHATSAPP_NUMBER: '',
   SUPPORT_EMAIL: '',
   DEFAULT_CURRENCY: 'SAR',
   CART_STORAGE_KEY: 'adnan_cart_v2',
-  CURRENCY_STORAGE_KEY: 'vault_currency_v1',
+  CURRENCY_STORAGE_KEY: 'adnan_currency_v1',
   INSTAGRAM_URL: '',
   LOGO_URL: './images/logo.png',
   FALLBACK_IMAGE: './images/cards/card-01.webp',
@@ -57,10 +57,10 @@ export const APP_CONFIG = {
     productsFolder: runtimeConfig.cloudinary?.productsFolder || 'adnanstore/products'
   },
   THEME: {
-    bg: '#070B14',
-    bg2: '#0D1220',
-    surface: '#121A2A',
-    surface2: '#182238',
+    bg: '#0D0E12',
+    bg2: '#15171C',
+    surface: '#1C1F26',
+    surface2: '#242830',
     primary: '#D6A86A',
     primaryDark: '#8F5F2A',
     primaryLight: '#F5E3C8',
@@ -103,10 +103,10 @@ export const APP_CONFIG = {
 };
 
 export const DEFAULT_THEME_COLORS = {
-  bg: '#070B14',
+  bg: '#0D0E12',
   bgAlt: '#0E1118',
-  surface: '#121A2A',
-  surface2: '#182238',
+  surface: '#1C1F26',
+  surface2: '#242830',
   card: '#141924',
   cardStrong: '#222A3B',
   line: 'rgba(242,228,205,0.12)',
