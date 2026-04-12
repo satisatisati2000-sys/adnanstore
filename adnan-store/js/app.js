@@ -83,7 +83,7 @@ const state = {
 
 let adminFailCount = 0;
 let adminLockUntil = 0;
-const RECEIPTS_KEY = 'vault_receipts_v1';
+const RECEIPTS_KEY = 'adnan_receipts_v1';
 
 const PAYMENT_METHODS_KEY = 'adnan_payment_methods_v1';
 
@@ -350,9 +350,10 @@ function addToCartById(productId) {
 function buyNowById(productId) {
   const product = state.products.find(item => item.id === productId);
   if (!product) return showToast('المنتج غير موجود', 'error');
-  addToCart(product);
-  updateCartBadges();
-  showToast('تمت الإضافة إلى السلة', 'success');
+  // لا نفرغ السلة ولا نضيف المنتج بالضرورة للسلة الكبيرة إذا كان شراء مباشر لمنتج واحد
+  // لكن حسب طلب العميل، يجب ألا يفرغ السلة.
+  // سنقوم بالذهاب لصفحة الدفع مع باراميتر المنتج
+  goTo(`${rel('pages/checkout.html')}?product=${encodeURIComponent(productId)}`);
 }
 
 function goTo(url) { window.location.href = url; }
@@ -534,6 +535,7 @@ function createPendingOrder(product, methodId='') {
     id: generateOrderId(),
     productId: product.id,
     productTitle: product.name,
+    items: [{ id: product.id, name: product.name, price: trustedPrice, quantity: 1 }],
     userId: user?.id || '',
     username: user?.name || '',
     email: user?.email || '',
@@ -545,6 +547,28 @@ function createPendingOrder(product, methodId='') {
     notes: '',
     hasReceipt: false,
     timeline: [{ status:'pending_payment', at: nowIso(), note:'تم إنشاء الطلب' }]
+  };
+  return upsertOrder(order);
+}
+
+function createPendingOrderFromCart(cart, methodId='') {
+  const user = state.currentUser;
+  const total = cart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+  const order = {
+    id: generateOrderId(),
+    items: cart,
+    productTitle: cart.length === 1 ? cart[0].name : `طلب مجمع (${cart.length} منتجات)`,
+    userId: user?.id || '',
+    username: user?.name || '',
+    email: user?.email || '',
+    price: total,
+    time: nowIso(),
+    paymentMethod: methodId,
+    status: 'pending_payment',
+    senderName: '',
+    notes: '',
+    hasReceipt: false,
+    timeline: [{ status:'pending_payment', at: nowIso(), note:'تم إنشاء طلب من السلة' }]
   };
   return upsertOrder(order);
 }
@@ -645,14 +669,30 @@ function sanitizeUrl(url = '') {
 }
 
 function resolveTarget(item = {}) {
-  if (item.customUrl) return sanitizeUrl(item.customUrl);
-  const type = item.targetType;
+  const type = String(item.targetType || '').toLowerCase();
+  const customUrl = String(item.customUrl || '').trim();
+  if (type === 'custom' && customUrl) return sanitizeUrl(customUrl);
+  if (customUrl && !type) return sanitizeUrl(customUrl);
+
   const targetId = item.targetId || item.productId || item.subcategoryId || item.categoryId;
-  if (type === 'product' || item.productId) return `${rel('pages/product.html')}?id=${encodeURIComponent(targetId)}`;
-  if (type === 'subcategory' || item.subcategoryId) return `${rel('pages/category.html')}?category=${encodeURIComponent(item.categoryId || '')}&subcategory=${encodeURIComponent(targetId || item.subcategoryId || '')}`;
-  if (type === 'category' || item.categoryId) return `${rel('pages/category.html')}?category=${encodeURIComponent(targetId || item.categoryId || '')}`;
-  if (type === 'section' && item.sectionId) return `${rel('index.html')}#${item.sectionId}`;
-  return '#';
+
+  if (type === 'product' || item.productId) {
+    const pid = item.productId || targetId;
+    return pid ? `${rel('pages/product.html')}?id=${encodeURIComponent(pid)}` : '#';
+  }
+  if (type === 'subcategory' || item.subcategoryId) {
+    const sid = item.subcategoryId || targetId;
+    const cid = item.categoryId || '';
+    return sid ? `${rel('pages/category.html')}?category=${encodeURIComponent(cid)}&subcategory=${encodeURIComponent(sid)}` : '#';
+  }
+  if (type === 'category' || item.categoryId) {
+    const cid = item.categoryId || targetId;
+    return cid ? `${rel('pages/category.html')}?category=${encodeURIComponent(cid)}` : '#';
+  }
+  if (type === 'section' && (item.sectionId || targetId)) {
+    return `${rel('index.html')}#${item.sectionId || targetId}`;
+  }
+  return customUrl ? sanitizeUrl(customUrl) : '#';
 }
 
 function buildSearchDrawer() {
@@ -733,12 +773,16 @@ function buildCategoryDrawer() {
     state.categories = LOCAL_SEED.categories;
     items = topCategories();
   }
+
+  // نحدد التبويب النشط
   const activeParentId = state.categoryDrawerParentId && items.some(item => item.id === state.categoryDrawerParentId)
     ? state.categoryDrawerParentId
     : (items[0]?.id || '');
+
   const activeParent = items.find(item => item.id === activeParentId) || items[0] || null;
   const subs = activeParent ? childCategories(activeParent.id) : [];
   const parentImage = activeParent?.image ? imageSrc(activeParent.image) : APP_CONFIG.FALLBACK_IMAGE;
+
   return `<aside class="side-drawer hidden" id="categoryDrawer" aria-hidden="true" data-active-parent="${escapeHtml(activeParentId)}">
     <div class="side-drawer-backdrop" data-close-drawer></div>
     <div class="side-drawer-shell side-drawer-shell--tabs">
@@ -747,17 +791,44 @@ function buildCategoryDrawer() {
         <div class="side-drawer-head">
           <div>
             <strong>التصنيفات</strong>
-            <p class="muted">اختر التبويب ثم الفئة التي تريدها</p>
+            <p class="muted">اختر القسم لاستعراض المنتجات</p>
           </div>
           <button class="icon-btn" type="button" data-close-drawer>${ICONS.close}</button>
         </div>
+
         <div class="drawer-tabbar" role="tablist">
-          ${items.map(item => `<button class="drawer-tab ${item.id === activeParentId ? 'active' : ''}" type="button" data-parent-tab="${item.id}" aria-selected="${item.id === activeParentId ? 'true' : 'false'}">${item.image ? `<img class="drawer-tab-thumb" src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'">` : ''}<span>${escapeHtml(item.name)}</span></button>`).join('')}
+          ${items.map(item => `
+            <button class="drawer-tab ${item.id === activeParentId ? 'active' : ''}"
+                    type="button"
+                    data-parent-tab="${item.id}"
+                    aria-selected="${item.id === activeParentId ? 'true' : 'false'}">
+              ${item.image ? `<img class="drawer-tab-thumb" src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'">` : ''}
+              <span>${escapeHtml(item.name)}</span>
+            </button>`).join('')}
         </div>
+
         <div class="drawer-tabpanel">
-          ${activeParent ? `<button class="subcat-link subcat-link--hero" type="button" data-category-select="${activeParent.id}" data-parent-id="${activeParent.id}" data-close-drawer><span>${escapeHtml(activeParent.name)}</span><small>عرض جميع منتجات هذا القسم</small></button>` : ''}
+          ${activeParent ? `
+            <button class="subcat-link subcat-link--hero" type="button" data-category-select="${activeParent.id}" data-parent-id="${activeParent.id}" data-close-drawer>
+              <span>${escapeHtml(activeParent.name)}</span>
+              <small>عرض كل منتجات هذا التصنيف</small>
+            </button>` : ''}
+
           <div class="drawer-grid">
-            ${subs.length ? subs.map(sub => `<button class="subcat-link subcat-link--card" type="button" data-subcategory-select="${sub.id}" data-parent-id="${activeParent.id}" data-close-drawer>${sub.image ? `<img class="subcat-thumb" src="${escapeHtml(imageSrc(sub.image))}" alt="${escapeHtml(sub.name)}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'">` : ''}<span>${escapeHtml(sub.name)}</span><small>${escapeHtml(sub.subtitle || 'عرض المنتجات')}</small></button>`).join('') : `<div class="empty-state"><strong>لا توجد فئات داخلية</strong><span>يمكنك عرض جميع منتجات هذا القسم مباشرة.</span></div>`}
+            ${subs.length ? subs.map(sub => `
+              <button class="subcat-link subcat-link--card ${state.selectedSubcategoryId === sub.id ? 'active' : ''}"
+                      type="button"
+                      data-subcategory-select="${sub.id}"
+                      data-parent-id="${activeParent?.id || ''}"
+                      data-close-drawer>
+                ${sub.image ? `<img class="subcat-thumb" src="${escapeHtml(imageSrc(sub.image))}" alt="${escapeHtml(sub.name)}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'">` : ''}
+                <span>${escapeHtml(sub.name)}</span>
+                <small>${escapeHtml(sub.subtitle || 'عرض المنتجات')}</small>
+              </button>`).join('') : `
+              <div class="empty-state">
+                <strong>لا توجد تفرعات حالياً</strong>
+                <span>يمكنك تصفح القسم الرئيسي مباشرة.</span>
+              </div>`}
           </div>
         </div>
       </div>
@@ -815,11 +886,21 @@ function renderChrome() {
   if (topbarHost) topbarHost.innerHTML = buildTopbar();
   if (bottomHost) bottomHost.innerHTML = buildBottomNav();
   if (footerHost) footerHost.innerHTML = buildFooter();
-  document.getElementById('floatingUiHost')?.replaceChildren();
-  if (!document.querySelector('.floating-ui')) document.body.insertAdjacentHTML('beforeend', buildFloatingUi());
+
+  const floatingHost = document.getElementById('floatingUiHost');
+  if (floatingHost) {
+    floatingHost.innerHTML = buildFloatingUi();
+  } else if (!document.querySelector('.floating-ui')) {
+    document.body.insertAdjacentHTML('beforeend', buildFloatingUi());
+  }
+
   const existingCategoryDrawer = document.getElementById('categoryDrawer');
-  if (existingCategoryDrawer) existingCategoryDrawer.outerHTML = buildCategoryDrawer();
-  else document.body.insertAdjacentHTML('beforeend', buildCategoryDrawer());
+  if (existingCategoryDrawer) {
+    existingCategoryDrawer.outerHTML = buildCategoryDrawer();
+  } else {
+    document.body.insertAdjacentHTML('beforeend', buildCategoryDrawer());
+  }
+
   bindChromeEvents();
   updateCartBadges();
 }
@@ -827,112 +908,95 @@ function renderChrome() {
 function bindChromeEvents() {
   const currencySelect = $('#currencySelect');
   const drawer = $('#searchDrawer');
-  let categoryDrawer = document.getElementById('categoryDrawer');
-  const ensureCategoryDrawer = () => {
-    categoryDrawer = document.getElementById('categoryDrawer');
-    if (!categoryDrawer) {
-      document.body.insertAdjacentHTML('beforeend', buildCategoryDrawer());
-      categoryDrawer = document.getElementById('categoryDrawer');
-      bindInlineCategorySelection(categoryDrawer || document);
-      bindAccordion(categoryDrawer || document);
-    }
-    return categoryDrawer;
-  };
+
   const openCategoryDrawer = (event = null) => {
     if (event) { event.preventDefault?.(); event.stopPropagation?.(); }
-    const drawerNode = ensureCategoryDrawer();
+    const drawerNode = document.getElementById('categoryDrawer');
     if (!drawerNode) return;
     drawerNode.classList.remove('hidden');
     drawerNode.setAttribute('aria-hidden', 'false');
-    $$('[data-open-drawer]').forEach(el => el.setAttribute('aria-expanded', 'true'));
     document.body.classList.add('drawer-open');
   };
+
   const closeCategoryDrawer = (event = null) => {
     if (event) { event.preventDefault?.(); event.stopPropagation?.(); }
     const drawerNode = document.getElementById('categoryDrawer');
     if (!drawerNode) return;
     drawerNode.classList.add('hidden');
     drawerNode.setAttribute('aria-hidden', 'true');
-    $$('[data-open-drawer]').forEach(el => el.setAttribute('aria-expanded', 'false'));
     document.body.classList.remove('drawer-open');
   };
+
   $('#openSearchBtn')?.addEventListener('click', () => drawer?.classList.remove('hidden'));
   $('#closeSearchBtn')?.addEventListener('click', () => drawer?.classList.add('hidden'));
   currencySelect?.addEventListener('change', (e) => setCurrency(e.target.value));
   $('#searchInput')?.addEventListener('input', handleSearch);
+
   $('#brandHomeBtn')?.addEventListener('click', () => goTo(rel('index.html')));
-  $('#brandHomeBtn')?.addEventListener('contextmenu', (e) => e.preventDefault());
-  $('#brandHomeBtn')?.addEventListener('touchstart', () => {}, { passive: true });
   $('#scrollTopBtn')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  $$('[data-open-drawer]').forEach(el => {
-    el.onclick = null;
-    ['click','touchend','pointerup'].forEach(evt => el.addEventListener(evt, (e) => {
+
+  // مستمع أحداث مفوض لفتح وقفل الدرج
+  document.addEventListener('click', (e) => {
+    const openBtn = e.target.closest('[data-open-drawer]');
+    if (openBtn) {
       e.preventDefault();
-      e.stopPropagation();
-      stripHashSilently();
       openCategoryDrawer();
-    }, { passive: false }));
-  });
-  $$('[data-close-drawer]').forEach(el => {
-    el.onclick = null;
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeCategoryDrawer();
-    });
-  });
-  document.getElementById('categoryDrawer')?.addEventListener('click', (e) => {
-    const closeHit = e.target.closest('[data-close-drawer]');
-    if (closeHit) {
+      return;
+    }
+    const closeBtn = e.target.closest('[data-close-drawer]');
+    if (closeBtn) {
       e.preventDefault();
       closeCategoryDrawer();
       return;
     }
-    if (e.target === document.getElementById('categoryDrawer')) {
+    // قفل الدرج عند الضغط على الخلفية
+    if (e.target.matches('.side-drawer-backdrop')) {
       closeCategoryDrawer();
       return;
     }
-    const actionable = e.target.closest('button[data-subcategory-select],button[data-category-select],button[data-category-toggle],a[href]');
-    if (actionable && !actionable.matches('button[data-category-toggle]')) {
-      closeCategoryDrawer();
-    }
-  }, true);
-  if (!document.body.dataset.categoryDrawerDelegated) {
-    const delegatedOpen = (e) => {
-      const trigger = e.target.closest('[data-open-drawer]');
-      if (!trigger) return;
+  });
+
+  // مستمع أحداث مفوض لتبديلات التبويبات داخل الدرج
+  document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('[data-parent-tab]');
+    if (tabBtn) {
       e.preventDefault();
-      e.stopPropagation();
-      openCategoryDrawer();
-    };
-    document.addEventListener('click', delegatedOpen, true);
-    document.addEventListener('touchend', delegatedOpen, true);
-    document.addEventListener('pointerup', delegatedOpen, true);
-    document.body.dataset.categoryDrawerDelegated = '1';
-  }
+      state.categoryDrawerParentId = tabBtn.dataset.parentTab;
+      const currentDrawer = document.getElementById('categoryDrawer');
+      if (currentDrawer) {
+        currentDrawer.outerHTML = buildCategoryDrawer();
+        // بما أننا استبدلنا HTML الدرج، لا نحتاج لإعادة ربط الأحداث لأننا نستخدم تفويض الأحداث على document
+      }
+    }
+  });
+
+  // مستمع أحداث مفوض لاختيار التصنيفات
+  document.addEventListener('click', (e) => {
+    const catBtn = e.target.closest('[data-category-select]');
+    if (catBtn) {
+      e.preventDefault();
+      const id = catBtn.dataset.categorySelect;
+      closeCategoryDrawer();
+      goTo(`${rel('pages/category.html')}?category=${encodeURIComponent(id)}`);
+      return;
+    }
+    const subBtn = e.target.closest('[data-subcategory-select]');
+    if (subBtn) {
+      e.preventDefault();
+      const sid = subBtn.dataset.subcategorySelect;
+      const pid = subBtn.dataset.parentId || '';
+      closeCategoryDrawer();
+      goTo(`${rel('pages/category.html')}?category=${encodeURIComponent(pid)}&subcategory=${encodeURIComponent(sid)}`);
+      return;
+    }
+  });
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeCategoryDrawer();
   });
+
   window.__openStoreCategoryDrawer = openCategoryDrawer;
   window.__closeStoreCategoryDrawer = closeCategoryDrawer;
-  document.addEventListener('click', (e) => {
-    const parentTab = e.target.closest('[data-parent-tab]');
-    if (!parentTab) return;
-    e.preventDefault();
-    state.categoryDrawerParentId = parentTab.dataset.parentTab || '';
-    const current = document.getElementById('categoryDrawer');
-    if (current) current.outerHTML = buildCategoryDrawer();
-    bindChromeEvents();
-    openCategoryDrawer();
-  }, true);
-  document.addEventListener('click', (e) => {
-    const hashLink = e.target.closest('a[href="#"]');
-    if (!hashLink) return;
-    e.preventDefault();
-    stripHashSilently();
-  }, true);
-  bindInlineCategorySelection(categoryDrawer || document);
-  bindAccordion(categoryDrawer || document);
 }
 
 
@@ -1147,8 +1211,9 @@ function renderCharacterCarouselSection() {
   host.innerHTML = `<div class="section-head"><h2 class="section-title">شخصيات متحركة</h2></div><div class="character-carousel-viewport"><div class="character-carousel-track auto-marquee">${doubled.map(item => `<a class="character-carousel-card" href="${resolveTarget(item)}"><img class="character-carousel-media" src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.subtitle || item.title || 'شخصية')}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'"><span class="character-carousel-label">${escapeHtml(item.subtitle || item.title || 'شخصية')}</span></a>`).join('')}</div></div>`;
 }
 
-function renderProductCard(item) {
-  return `<article class="product-card product-card--horizontal">
+function renderProductCard(item, variant = 'horizontal') {
+  const cls = variant === 'portrait' ? 'product-card--portrait' : 'product-card--horizontal';
+  return `<article class="product-card ${cls}">
     <a class="product-media-link" href="${rel('pages/product.html')}?id=${encodeURIComponent(item.id)}">
       <img class="product-media" src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.name)}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'">
       ${item.badge ? `<span class="badge">${escapeHtml(item.badge)}</span>` : ''}
@@ -1159,7 +1224,10 @@ function renderProductCard(item) {
         <strong class="price-current">${escapeHtml(formatCurrency(item.price))}</strong>
         ${item.oldPrice ? `<span class="price-old">${escapeHtml(formatCurrency(item.oldPrice))}</span>` : ''}
       </div>
-      <div class="product-actions"><a class="btn btn-secondary full" href="${rel('pages/product.html')}?id=${encodeURIComponent(item.id)}">استعرض</a><button class="btn btn-primary full" data-add-to-cart="${item.id}" type="button">اشتر الآن</button></div>
+      <div class="product-actions">
+        <a class="btn btn-secondary full" href="${rel('pages/product.html')}?id=${encodeURIComponent(item.id)}">استعرض</a>
+        <button class="btn btn-primary full" data-add-to-cart="${item.id}" type="button">اشتر الآن</button>
+      </div>
     </div>
   </article>`;
 }
@@ -1175,18 +1243,24 @@ function renderProductSections() {
   const groups = [];
   if (state.selectedSubcategoryId) {
     const sub = state.categories.find(item => item.id === state.selectedSubcategoryId);
-    const items = productsAll.filter(item => item.subcategoryId === state.selectedSubcategoryId).slice(0, 12);
-    groups.push({ title: sub?.name || 'المنتجات', items, href: `${rel('pages/category.html')}?category=${encodeURIComponent(sub?.parentId || '')}&subcategory=${encodeURIComponent(state.selectedSubcategoryId)}` });
+    // تأكد من فلترة المنتجات حسب الـ subcategoryId الصحيح
+    const items = productsAll.filter(item => item.subcategoryId === state.selectedSubcategoryId);
+    groups.push({ title: sub?.name || 'المنتجات', items: items.slice(0, 12), href: `${rel('pages/category.html')}?category=${encodeURIComponent(sub?.parentId || '')}&subcategory=${encodeURIComponent(state.selectedSubcategoryId)}` });
   } else if (state.selectedCategoryId) {
     const cat = state.categories.find(item => item.id === state.selectedCategoryId);
-    const items = productsAll.filter(item => item.categoryId === state.selectedCategoryId).slice(0, 12);
-    groups.push({ title: cat?.name || 'المنتجات', items, href: `${rel('pages/category.html')}?category=${encodeURIComponent(state.selectedCategoryId)}` });
+    // تأكد من فلترة المنتجات حسب الـ categoryId الصحيح
+    const items = productsAll.filter(item => item.categoryId === state.selectedCategoryId);
+    groups.push({ title: cat?.name || 'المنتجات', items: items.slice(0, 12), href: `${rel('pages/category.html')}?category=${encodeURIComponent(state.selectedCategoryId)}` });
   } else {
+    // الأقسام الافتراضية من البطاقات
     activeItems(state.cards).filter(item => item.cardKind === 'section').forEach(section => {
-      const items = productsAll.filter(item => item.categoryId === section.categoryId).slice(0, 8);
-      if (items.length) groups.push({ title: section.title, items, href: `${rel('pages/category.html')}?category=${encodeURIComponent(section.categoryId || '')}` });
+      const items = productsAll.filter(item => item.categoryId === section.categoryId);
+      if (items.length) groups.push({ title: section.title, items: items.slice(0, 8), href: `${rel('pages/category.html')}?category=${encodeURIComponent(section.categoryId || '')}` });
     });
-    if (!groups.length) groups.push({ title: 'المنتجات', items: productsAll.slice(0, 12), href: `${rel('pages/category.html')}` });
+    // إذا لم يوجد شيء، اعرض آخر المنتجات
+    if (!groups.length) {
+      groups.push({ title: 'وصل حديثاً', items: productsAll.slice(0, 12), href: `${rel('pages/category.html')}` });
+    }
   }
   host.innerHTML = groups.map(section => `
     <section class="section">
@@ -1194,7 +1268,7 @@ function renderProductSections() {
         <h2 class="section-title">${escapeHtml(section.title)}</h2>
         <a class="link-inline" href="${section.href || '#'}">عرض الكل</a>
       </div>
-      ${section.items.length ? `<div class="product-list">${section.items.map(renderProductCard).join('')}</div>` : emptyState('لا توجد منتجات')}
+      ${section.items.length ? `<div class="product-list product-list--fixed-grid">${section.items.map(item => renderProductCard(item)).join('')}</div>` : emptyState('لا توجد منتجات')}
     </section>`).join('');
   bindProductButtons(host);
 }
@@ -1386,12 +1460,13 @@ function renderProductPage() {
         </div>
         ${item.deliveryText ? `<div class="muted">${escapeHtml(item.deliveryText)}</div>` : ''}
         ${item.description ? `<p class="product-copy">${escapeHtml(item.description)}</p>` : '<p class="product-copy">منتج جاهز للشراء مع عرض الاسم والصورة والسعر والوصف بشكل واضح.</p>'}
+        ${item.details ? `<div class="product-details-extra">${escapeHtml(item.details)}</div>` : ''}
         <div class="product-feature-list">
           <span class="product-feature-chip">تسليم سريع</span>
           <span class="product-feature-chip">آمن ومضمون</span>
           <span class="product-feature-chip">دعم مباشر</span>
         </div>
-        ${usingFallbackItem ? '<div class="muted">تم عرض أول منتج متاح لأن الرابط المطلوب غير صالح.</div>' : ''}
+        ${usingFallbackItem ? '<div class="muted" style="margin-top:10px;font-size:0.8rem">تم عرض أول منتج متاح لأن الرابط المطلوب غير صالح.</div>' : ''}
         <div class="product-actions product-actions--rich">
           <button class="btn btn-primary" data-add-to-cart="${item.id}" type="button">أضف للسلة</button>
           <button class="btn btn-secondary" data-buy-now="${item.id}" type="button">اشتر الآن</button>
@@ -1399,8 +1474,8 @@ function renderProductPage() {
       </div>
     </section>
     <section class="section">
-      <div class="section-head"><h2 class="section-title">مشابهة</h2></div>
-      ${related.length ? `<div class="rail product-rail">${related.map(renderProductCard).join('')}</div>` : emptyState('لا توجد منتجات مشابهة')}
+      <div class="section-head"><h2 class="section-title">منتجات مشابهة</h2></div>
+      ${related.length ? `<div class="rail product-rail">${related.map(p => renderProductCard(p, 'portrait')).join('')}</div>` : emptyState('لا توجد منتجات مشابهة')}
     </section>`;
   if ((!requestedId || usingFallbackItem) && window.history?.replaceState) {
     const url = new URL(window.location.href);
@@ -1460,20 +1535,46 @@ function renderCheckoutPage() {
   const host = $('#checkoutHost');
   if (!host) return;
   if (!isLoggedIn()) {
-    host.innerHTML = `<div class="checkout-card"><h1 class="section-title">تسجيل الدخول مطلوب</h1><p class="muted">يجب تسجيل الدخول أولًا لإكمال الشراء.</p><a class="btn btn-primary full" href="${rel('pages/login.html')}?next=${encodeURIComponent(window.location.pathname + window.location.search)}">تسجيل الدخول أو إنشاء حساب</a></div>`;
+    host.innerHTML = `<div class="checkout-card auth-required-card">
+      <div class="icon-circle">🔒</div>
+      <h1 class="section-title">تسجيل الدخول مطلوب</h1>
+      <p class="muted">يرجى تسجيل الدخول أو إنشاء حساب جديد لتتمكن من إتمام عملية الشراء ومتابعة طلباتك.</p>
+      <a class="btn btn-primary full" href="${rel('pages/login.html')}?next=${encodeURIComponent(window.location.pathname + window.location.search)}">تسجيل الدخول / إنشاء حساب</a>
+    </div>`;
     return;
   }
+
   const productId = getParam('product');
   const existingOrderId = getParam('order');
-  // تحديد طول الـ ID من الـ URL لمنع إساءة الاستخدام
+
+  // إذا لم يكن هناك منتج محدد ولا طلب سابق، وكان هناك عناصر في السلة، يمكننا تحويل السلة لطلب (أو عرض عناصر السلة)
+  // لكن حسب طلب العميل، سنركز على استقرار الـ flow.
+
   let order = (existingOrderId && existingOrderId.length <= 60) ? getOrderById(existingOrderId) : null;
+
   if (!order && productId) {
     const product = state.products.find(item => item.id === productId);
-    if (!product) { host.innerHTML = emptyState('المنتج غير موجود'); return; }
+    if (!product) {
+      host.innerHTML = emptyState('المنتج غير موجود', 'تأكد من اختيار منتج صحيح من المتجر.');
+      return;
+    }
     order = createPendingOrder(product);
     history.replaceState({}, '', `${rel('pages/checkout.html')}?order=${encodeURIComponent(order.id)}`);
   }
-  if (!order) { host.innerHTML = emptyState('لا يوجد طلب نشط', 'اضغط شراء من المنتج أولًا.'); return; }
+
+  // إذا لم يجد طلب برقم محدد، ولكن السلة فيها عناصر، سنعرض واجهة دفع للسلة (اختياري حسب نضج المشروع)
+  // حالياً سنلتزم بمنطق الـ order-id المستقر.
+
+  if (!order) {
+    const cart = readCart();
+    if (cart.length > 0) {
+       order = createPendingOrderFromCart(cart);
+       history.replaceState({}, '', `${rel('pages/checkout.html')}?order=${encodeURIComponent(order.id)}`);
+    } else {
+       host.innerHTML = emptyState('لا يوجد طلب نشط', 'اضغط على زر الشراء من صفحة المنتج أو أضف منتجات للسلة للبدء.');
+       return;
+    }
+  }
   const methods = getEnabledPaymentMethods();
   const bankMethods = methods.filter(item => item.group === 'bank');
   const directMethods = methods.filter(item => item.group !== 'bank');
@@ -1593,6 +1694,14 @@ function renderCheckoutPage() {
     });
     await pushOrderStatus(order.id, 'under_review', 'تم رفع الإيصال وإرسال الطلب للمراجعة');
 
+    // إفراغ السلة فقط عند النجاح الفعلي وإرسال الطلب
+    if (existingOrderId || productId) {
+        // إذا كان شراء لمنتج واحد، لا نلمس السلة بالضرورة إلا إذا كان هو نفسه هناك
+    } else {
+        // إذا كان طلب من السلة
+        writeCart([]);
+    }
+
     // ─── إرسال رسالة واتساب للأدمن فور إتمام الطلب ──────────────────────────
     const wa = (settings().whatsappNumber || '').replace(/\D+/g, '');
     if (wa) {
@@ -1648,11 +1757,12 @@ function renderLoginPage() {
       </div>
       <div class="auth-panel hidden" id="registerPanel">
         <h1 class="section-title">إنشاء حساب جديد</h1>
-        <p class="muted">أنشئ الحساب مرة واحدة، وسيتم تسجيل دخولك تلقائيًا فور الإنشاء.</p>
+        <p class="muted">املأ البيانات التالية لإنشاء حسابك. سيتم تسجيل دخولك تلقائياً بعد النجاح.</p>
         <form id="registerForm" class="form-grid auth-form-grid">
-          <label class="field-group"><span>الاسم الكامل</span><input class="field" type="text" name="name" autocomplete="name" placeholder="اسمك الكامل" required></label>
-          <label class="field-group"><span>البريد الإلكتروني</span><input class="field" type="email" name="email" autocomplete="email" inputmode="email" placeholder="name@gmail.com" required></label>
-          <label class="field-group"><span>كلمة المرور</span><input class="field" type="password" name="password" autocomplete="new-password" placeholder="8 أحرف أو أكثر" required></label>
+          <label class="field-group"><span>الاسم الكامل</span><input class="field" type="text" name="name" autocomplete="name" placeholder="مثلاً: محمد علي" required></label>
+          <label class="field-group"><span>البريد الإلكتروني</span><input class="field" type="email" name="email" autocomplete="email" inputmode="email" placeholder="example@mail.com" required></label>
+          <label class="field-group"><span>كلمة المرور</span><input class="field" type="password" name="password" autocomplete="new-password" placeholder="8 أحرف على الأقل" required></label>
+          <label class="field-group"><span>تأكيد كلمة المرور</span><input class="field" type="password" name="confirmPassword" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" required></label>
           <button class="btn btn-primary full" type="submit">إنشاء الحساب</button>
         </form>
       </div>
@@ -1743,35 +1853,45 @@ async function handleRegister(event) {
   const name = String(form.get('name') || '').trim().slice(0, 60);
   const email = String(form.get('email') || '').trim().toLowerCase().slice(0, 100);
   const password = String(form.get('password') || '').trim();
+  const confirm = String(form.get('confirmPassword') || '').trim();
 
-  if (!name || name.length < 2) { $('#loginState').textContent = 'يرجى إدخال اسم صحيح (حرفان على الأقل).'; return; }
-  if (!email || !isAcceptedEmail(email)) { $('#loginState').textContent = 'يرجى إدخال بريد إلكتروني صحيح مثل name@gmail.com'; return; }
-  if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-    $('#loginState').textContent = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف وأرقام.';
-    return;
-  }
-  if (password.length > 128) { $('#loginState').textContent = 'كلمة المرور طويلة جداً.'; return; }
+  const stateEl = $('#loginState');
+  if (stateEl) stateEl.textContent = '';
+
+  if (!name || name.length < 2) { stateEl.textContent = 'يرجى إدخال اسم صحيح (حرفان على الأقل).'; return; }
+  if (!email || !isAcceptedEmail(email)) { stateEl.textContent = 'يرجى إدخال بريد إلكتروني صحيح.'; return; }
+  if (password.length < 8) { stateEl.textContent = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.'; return; }
+  if (password !== confirm) { stateEl.textContent = 'كلمة المرور وتأكيدها غير متطابقين.'; return; }
 
   const users = readUsers();
-  if (users.length > 1500) { $('#loginState').textContent = 'تعذّر إنشاء الحساب. تواصل مع الدعم.'; return; }
-  if (users.some(item => item.email === email)) { $('#loginState').textContent = 'هذا البريد مسجل مسبقًا'; return; }
+  if (users.some(item => item.email === email)) { stateEl.textContent = 'هذا البريد مسجل مسبقاً.'; return; }
 
   const salt = generateSalt();
   const passwordHash = await hashPassword(password, salt);
   const rand = Array.from(crypto.getRandomValues(new Uint8Array(4))).map(b => b.toString(16).padStart(2,'0')).join('');
+
   const user = {
     id: `USR-${Date.now().toString(36)}-${rand}`,
     name, email, passwordHash, passwordSalt: salt,
-    role: 'customer', // role دائماً customer عند التسجيل
+    role: 'customer',
     createdAt: nowIso()
   };
+
   users.push(user);
   saveUsers(users);
+
   setCurrentUser({ id: user.id, name: user.name, email: user.email, role: 'customer' });
-  $('#loginState').textContent = 'تم إنشاء الحساب وتسجيل الدخول';
+
+  showToast('تم إنشاء الحساب بنجاح، جاري التحويل...', 'success');
+
+  // تحديث الواجهة فوراً
   renderChrome();
   renderLoginPage();
-  setTimeout(() => goTo(nextUrl() || rel('index.html')), 120);
+
+  // التحويل بعد مهلة قصيرة
+  setTimeout(() => {
+    goTo(nextUrl() || rel('index.html'));
+  }, 1000);
 }
 
 async function sha256(value = '') {
@@ -1865,15 +1985,17 @@ function validateAdminKey(key = '') {
   }
   return true;
 }
+
+function adminSchema() {
   return {
     orders: [],
     payments: [ ['title','text','اسم الطريقة'], ['displayName','text','الاسم الظاهر'], ['group','text','المجموعة bank/direct'], ['accountHolder','text','اسم صاحب الحساب'], ['accountNumber','text','رقم الحساب/البطاقة'], ['iban','text','الآيبان'], ['extraFields','textarea','الحقول الإضافية label:value بكل سطر'], ['instructions','textarea','تعليمات الدفع'], ['icon','text','الأيقونة'], ['enabled','checkbox','مفعلة'], ['order','number','الترتيب'] ],
     settings: [ ['storeName','text','اسم المتجر'], ['logoUrl','url','رابط الشعار'], ['tagline','text','الوصف القصير'], ['instagramUrl','url','رابط إنستغرام'], ['whatsappNumber','text','رقم واتساب'], ['defaultCurrency','text','العملة الافتراضية'], ['heroBadge','text','شارة الهيرو'], ['heroTitle','text','عنوان الهيرو'], ['heroText','textarea','نص الهيرو'], ['footerText','text','نص الفوتر'], ['tickerText','text','النص المتحرك أعلى الموقع'], ['tickerTargetType','text','نوع رابط الشريط المتحرك'], ['tickerCategoryId','text','معرف فئة الشريط'], ['tickerSubcategoryId','text','معرف تفرع الشريط'], ['tickerCustomUrl','url','رابط مخصص للشريط'], ['bgColor','color','لون الخلفية'], ['bg2Color','color','الخلفية الثانوية'], ['surfaceColor','color','لون البطاقات'], ['surface2Color','color','سطح ثانوي'], ['primaryColor','color','اللون الرئيسي'], ['primaryDarkColor','color','اللون الرئيسي الداكن'], ['primaryLightColor','color','اللون الفاتح'], ['maroonColor','color','لون داعم'], ['textColor','color','لون النص الرئيسي'], ['text2Color','color','لون النص الثانوي'], ['mutedColor','color','اللون الهادئ'], ['active','checkbox','المتجر فعال'] ],
-    sliders: [ ['title','text'], ['image','url'], ['ctaLabel','text'], ['targetType','text'], ['targetId','text'], ['categoryId','text'], ['subcategoryId','text'], ['productId','text'], ['customUrl','url'], ['order','number'], ['active','checkbox'] ],
-    banners: [ ['title','text'], ['image','url'], ['targetType','text'], ['targetId','text'], ['categoryId','text'], ['subcategoryId','text'], ['productId','text'], ['customUrl','url'], ['order','number'], ['active','checkbox'] ],
-    cards: [ ['title','text'], ['subtitle','text','نص إضافي'], ['image','url'], ['icon','text'], ['cardKind','text'], ['sectionId','text'], ['categoryId','text'], ['subcategoryId','text'], ['targetType','text'], ['targetId','text'], ['customUrl','url'], ['order','number'], ['active','checkbox'] ],
-    categories: [ ['name','text'], ['icon','text'], ['image','url'], ['subtitle','text'], ['description','text'], ['parentId','text'], ['order','number'], ['active','checkbox'] ],
-    products: [ ['name','text'], ['price','number'], ['oldPrice','number'], ['badge','text'], ['image','url'], ['categoryId','text'], ['subcategoryId','text'], ['deliveryText','text'], ['description','text'], ['details','text'], ['order','number'], ['active','checkbox'] ],
+    sliders: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['ctaLabel','text','نص الزر'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['productId','text','معرف المنتج'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    banners: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['productId','text','معرف المنتج'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    cards: [ ['title','text','العنوان'], ['subtitle','text','نص إضافي/فرعي'], ['image','url','رابط الصورة'], ['icon','text','أيقونة'], ['cardKind','text','النوع (section/shortcut/vertical-character/character-carousel/character)'], ['sectionId','text','معرف القسم'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    categories: [ ['name','text','الاسم'], ['icon','text','الأيقونة'], ['image','url','رابط الصورة'], ['subtitle','text','عنوان فرعي'], ['description','text','الوصف'], ['parentId','text','معرف التصنيف الأب (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    products: [ ['name','text','الاسم'], ['price','number','السعر'], ['oldPrice','number','السعر القديم'], ['badge','text','الشارة (مثل: جديد/خصم)'], ['image','url','رابط الصورة'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['deliveryText','text','نص مدة التسليم'], ['description','text','الوصف القصير'], ['details','textarea','تفاصيل المنتج (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
     reviews: [ ['name','text'], ['image','url','صورة العميل'], ['text','text'], ['rating','number'], ['order','number'], ['active','checkbox'] ]
   };
 }
@@ -1908,13 +2030,13 @@ function renderOrdersAdminPanel() {
 function renderAdminPage() {
   renderAdminGate();
   if (!state.adminUnlocked) return;
-  const host = $('#adminHost');
+  const host = $('#adminPageHost');
   if (!host) return;
   const schema = adminSchema();
   host.innerHTML = `
     <div class="admin-card stack">
       <div class="admin-toolbar">
-        <div class="admin-toolbar-copy"><strong>لوحة التحكم الشاملة</strong><span class="muted">عدّل الشعار، الصور، البنرات، الشريط المتحرك، الفئات، المنتجات، والروابط من مكان واحد.</span></div>
+        <div class="admin-toolbar-copy"><strong>لوحة التحكم الشاملة</strong><span class="muted">عدّل الشعار، الصور، البنرات، الشريط المتحرك، التصنيفات، المنتجات، والروابط من مكان واحد.</span></div>
         <div class="admin-toolbar-actions">
           <button class="btn btn-primary" id="seedBtn" type="button">تهيئة المشروع</button>
           <button class="btn btn-secondary" id="logoutBtn" type="button">قفل الأدمن</button>
@@ -2198,6 +2320,13 @@ function bindAccordionCategoryTriggers(scope=document) {
   });
 }
 
+function bindCategoryDrawerInteractions() {
+  const drawer = document.getElementById('categoryDrawer');
+  if (!drawer) return;
+  bindInlineCategorySelection(drawer);
+  bindAccordion(drawer);
+}
+
 function bindInlineCategorySelection(scope=document) {
   bindAccordionCategoryTriggers(scope);
   const closeDrawer = () => {
@@ -2463,26 +2592,32 @@ function rerenderVisiblePage() {
 
 async function init() {
   clearLegacyBrandCaches();
+
+  // 1. تحميل الحالة المحلية الأساسية (أسرع شيء)
   state.currentUser = getCurrentUser();
-  state.adminUnlocked = false;
   state.paymentMethods = readPaymentMethods();
   applySeed(LOCAL_SEED);
   mergeLocalCmsIntoState();
   ensureSeedFallbackCollections();
   if (!state.settings) state.settings = mergeBrandSettings(LOCAL_SEED.settings?.data || {});
+
+  // 2. تطبيق الثيم والبراندينج الأولي لمنع الوميض الأبيض/الفارغ
   applyTheme();
   applyDocumentBranding();
-  renderChrome();
-  renderPageSkeletons();
-  rerenderVisiblePage();
-  updateCartBadges();
+
+  // 3. محاولة تحميل البيانات من Firebase إذا كان متاحاً
   const firebaseOk = await initFirebase();
   if (firebaseOk) {
     await loadRemoteContent();
     ensureSeedFallbackCollections();
-    applyTheme();
-    rerenderVisiblePage();
   }
+
+  // 4. الرندرة النهائية بعد استقرار البيانات
+  rerenderVisiblePage();
+
+  // 5. مراقبة أي تغييرات في الهاش لتنظيف الرابط
+  window.addEventListener('hashchange', stripHashSilently);
+  stripHashSilently();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

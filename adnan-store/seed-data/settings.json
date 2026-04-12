@@ -2,8 +2,8 @@
   "docId": "store",
   "data": {
     "storeName": "متجر فولت",
-    "brandingId": "vault-store",
-    "storeSlug": "vault-store",
+    "brandingId": "adnan-store",
+    "storeSlug": "adnan-store",
     "tagline": "متجر رقمي داكن وفاخر جاهز للبيع والتخصيص الكامل",
     "whatsappNumber": "",
     "instagramUrl": "",
@@ -28,7 +28,7 @@
     "lineColor": "rgba(245,227,200,0.12)",
     "glowColor": "rgba(214,168,106,0.22)"
   },
-  "storeName": "متجر عربي احترافي",
+  "storeName": "متجر عدنان",
   "brandingId": "adnan-core",
   "storeSlug": "adnan-core",
   "tagline": "متجر عربي داكن وغني بالأقسام والعروض، جاهز للتخصيص الكامل من الأدمن.",

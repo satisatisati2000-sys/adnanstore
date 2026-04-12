@@ -1,44 +1,44 @@
-{
+export const LOCAL_SEED = {
   "settings": {
     "docId": "store",
     "data": {
       "docId": "store",
       "data": {
-        "storeName": "متجر فولت",
-        "brandingId": "vault-store",
-        "storeSlug": "vault-store",
-        "tagline": "متجر رقمي داكن وفاخر جاهز للبيع والتخصيص الكامل",
+        "storeName": "متجر عدنان",
+        "brandingId": "adnan-store",
+        "storeSlug": "adnan-store",
+        "tagline": "متجر عدنان — عروض واشتراكات بأسعار منافسة",
         "whatsappNumber": "",
         "instagramUrl": "",
         "defaultCurrency": "SAR",
-        "heroBadge": "",
-        "heroTitle": "",
-        "heroText": "",
-        "footerText": "قالب متجر رقمي فاخر — خصّص الاسم، الشعار، البنرات، الأقسام، والمنتجات من الأدمن.",
+        "heroBadge": "متجر عدنان الأصلي",
+        "heroTitle": "عالم العروض الحصرية",
+        "heroText": "أفضل الحسابات والجواهر والخدمات الرقمية في مكان واحد، بتصميم عصري وتجربة استخدام سريعة.",
+        "footerText": "متجر عدنان — جميع الحقوق محفوظة.",
         "logoUrl": "./images/logo.png",
         "active": true,
-        "bgColor": "#070B14",
-        "bg2Color": "#0D1220",
-        "surfaceColor": "#121A2A",
-        "surface2Color": "#182238",
-        "primaryColor": "#D6A86A",
-        "primaryDarkColor": "#8F5F2A",
-        "primaryLightColor": "#F5E3C8",
-        "maroonColor": "#3B2748",
-        "textColor": "#F8F6F2",
-        "text2Color": "#D7DCEA",
-        "mutedColor": "#95A0B8",
-        "lineColor": "rgba(245,227,200,0.12)",
-        "glowColor": "rgba(214,168,106,0.22)"
+        "bgColor": "#07080C",
+        "bg2Color": "#0E1118",
+        "surfaceColor": "#141924",
+        "surface2Color": "#1B2130",
+        "primaryColor": "#C8A06B",
+        "primaryDarkColor": "#8F663E",
+        "primaryLightColor": "#F2E4CD",
+        "maroonColor": "#604731",
+        "textColor": "#F8F3EE",
+        "text2Color": "#D9CEC3",
+        "mutedColor": "#9E9389",
+        "lineColor": "rgba(242,228,205,0.12)",
+        "glowColor": "rgba(200,160,107,0.22)"
       },
-      "storeName": "متجر عربي احترافي",
-      "brandingId": "adnan-core",
-      "storeSlug": "adnan-core",
-      "tagline": "متجر عربي داكن وغني بالأقسام والعروض، جاهز للتخصيص الكامل من الأدمن.",
+      "storeName": "متجر عدنان",
+      "brandingId": "adnan-store",
+      "storeSlug": "adnan-store",
+      "tagline": "متجر عدنان — عروض واشتراكات بأسعار منافسة",
       "heroBadge": "أقسام أغنى + تحكم كامل",
-      "heroTitle": "متجر عربي غني بالعروض والتصنيفات",
+      "heroTitle": "متجر عدنان غني بالعروض والتصنيفات",
       "heroText": "واجهة داكنة أوضح، بطاقات أفقية أكثر راحة، بنرات متوازنة، وأقسام كثيرة مستوحاة من المتاجر الجاهزة للبيع مع تحكم كامل من الأدمن.",
-      "footerText": "واجهة عربية احترافية قابلة للتخصيص الكامل — عدّل الهوية، البنرات، الروابط، المنتجات، والتقييمات من لوحة التحكم."
+      "footerText": "متجر عدنان — جميع الحقوق محفوظة."
     }
   },
   "categories": [
@@ -774,44 +774,6 @@
       "customUrl": "",
       "order": 104,
       "active": true
-    },
-    {
-      "id": "character_01",
-      "title": "شانكس",
-      "subtitle": "جواهر + شانكس",
-      "image": "./images/cards/card-01.webp",
-      "cardKind": "character",
-      "targetType": "subcategory",
-      "categoryId": "cat_accounts",
-      "subcategoryId": "sub_accounts_rare",
-      "targetId": "sub_accounts_rare",
-      "active": true,
-      "order": 951
-    },
-    {
-      "id": "character_02",
-      "title": "أكاينو",
-      "subtitle": "عروض + أكاينو",
-      "image": "./images/cards/card-02.webp",
-      "cardKind": "character",
-      "targetType": "subcategory",
-      "categoryId": "cat_boost",
-      "subcategoryId": "sub_boost_flash",
-      "targetId": "sub_boost_flash",
-      "active": true,
-      "order": 952
-    },
-    {
-      "id": "character_03",
-      "title": "اللحية السوداء",
-      "subtitle": "قوالب + عروض",
-      "image": "./images/cards/card-03.webp",
-      "cardKind": "character",
-      "targetType": "category",
-      "categoryId": "cat_ready",
-      "targetId": "cat_ready",
-      "active": true,
-      "order": 953
     }
   ],
   "reviews": [
@@ -879,4 +841,4 @@
       "active": true
     }
   ]
-}
+};
