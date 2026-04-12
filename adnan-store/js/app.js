@@ -203,7 +203,7 @@ function settings() {
     heroTitle: state.settings?.heroTitle || APP_CONFIG.STORE_NAME,
     heroText: state.settings?.heroText || '',
     footerText: state.settings?.footerText || APP_CONFIG.STORE_NAME,
-    tickerText: state.settings?.tickerText || 'خصومات اليوم متاحة الآن — اضغط لعرض الفئة المحددة',
+    tickerText: state.settings?.tickerText || 'خصومات اليوم متاحة الآن — اضغط لعرض التصنيف المحدد',
     tickerTargetType: state.settings?.tickerTargetType || 'category',
     tickerCategoryId: state.settings?.tickerCategoryId || '',
     tickerSubcategoryId: state.settings?.tickerSubcategoryId || '',
@@ -1336,7 +1336,7 @@ function renderFinalBannerSection() {
   }
   if (!host) return;
   const items = activeItems(state.banners).slice(-2);
-  const fallback = [{ image:'./images/banners/banner-03.jpg', title:'عروض حصرية', targetType:'category', categoryId:'cat_codes', targetId:'cat_codes', ctaLabel:'استعرض الآن' }, { image:'./images/banners/banner-04.jpg', title:'فئة مميزة', targetType:'category', categoryId:'cat_services', targetId:'cat_services', ctaLabel:'اكتشفها' }];
+  const fallback = [{ image:'./images/banners/banner-03.jpg', title:'عروض حصرية', targetType:'category', categoryId:'cat_codes', targetId:'cat_codes', ctaLabel:'استعرض الآن' }, { image:'./images/banners/banner-04.jpg', title:'تصنيفات مميزة', targetType:'category', categoryId:'cat_services', targetId:'cat_services', ctaLabel:'اكتشفها' }];
   const finalItems = items.length ? items : fallback;
   host.innerHTML = `<div class="section-head"><h2 class="section-title">عروض ختامية</h2></div><div class="final-banner-grid">${finalItems.map(item => `<a class="final-banner-card" href="${resolveTarget(item)}"><img src="${escapeHtml(imageSrc(item.image))}" alt="${escapeHtml(item.title || 'بنر')}" onerror="this.onerror=null;this.src='${APP_CONFIG.FALLBACK_IMAGE}'"><div class="final-banner-overlay"></div><div class="final-banner-copy"><strong>${escapeHtml(item.title || '')}</strong><span>${escapeHtml(item.ctaLabel || 'استعرض')}</span></div></a>`).join('')}</div>`;
 }
@@ -1989,13 +1989,13 @@ function validateAdminKey(key = '') {
 function adminSchema() {
   return {
     orders: [],
-    payments: [ ['title','text','اسم الطريقة'], ['displayName','text','الاسم الظاهر'], ['group','text','المجموعة bank/direct'], ['accountHolder','text','اسم صاحب الحساب'], ['accountNumber','text','رقم الحساب/البطاقة'], ['iban','text','الآيبان'], ['extraFields','textarea','الحقول الإضافية label:value بكل سطر'], ['instructions','textarea','تعليمات الدفع'], ['icon','text','الأيقونة'], ['enabled','checkbox','مفعلة'], ['order','number','الترتيب'] ],
-    settings: [ ['storeName','text','اسم المتجر'], ['logoUrl','url','رابط الشعار'], ['tagline','text','الوصف القصير'], ['instagramUrl','url','رابط إنستغرام'], ['whatsappNumber','text','رقم واتساب'], ['defaultCurrency','text','العملة الافتراضية'], ['heroBadge','text','شارة الهيرو'], ['heroTitle','text','عنوان الهيرو'], ['heroText','textarea','نص الهيرو'], ['footerText','text','نص الفوتر'], ['tickerText','text','النص المتحرك أعلى الموقع'], ['tickerTargetType','text','نوع رابط الشريط المتحرك'], ['tickerCategoryId','text','معرف فئة الشريط'], ['tickerSubcategoryId','text','معرف تفرع الشريط'], ['tickerCustomUrl','url','رابط مخصص للشريط'], ['bgColor','color','لون الخلفية'], ['bg2Color','color','الخلفية الثانوية'], ['surfaceColor','color','لون البطاقات'], ['surface2Color','color','سطح ثانوي'], ['primaryColor','color','اللون الرئيسي'], ['primaryDarkColor','color','اللون الرئيسي الداكن'], ['primaryLightColor','color','اللون الفاتح'], ['maroonColor','color','لون داعم'], ['textColor','color','لون النص الرئيسي'], ['text2Color','color','لون النص الثانوي'], ['mutedColor','color','اللون الهادئ'], ['active','checkbox','المتجر فعال'] ],
-    sliders: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['ctaLabel','text','نص الزر'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['productId','text','معرف المنتج'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
-    banners: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['productId','text','معرف المنتج'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
-    cards: [ ['title','text','العنوان'], ['subtitle','text','نص إضافي/فرعي'], ['image','url','رابط الصورة'], ['icon','text','أيقونة'], ['cardKind','text','النوع (section/shortcut/vertical-character/character-carousel/character)'], ['sectionId','text','معرف القسم'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['targetType','text','النوع (product/category/subcategory/custom)'], ['targetId','text','المعرف (ID)'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
-    categories: [ ['name','text','الاسم'], ['icon','text','الأيقونة'], ['image','url','رابط الصورة'], ['subtitle','text','عنوان فرعي'], ['description','text','الوصف'], ['parentId','text','معرف التصنيف الأب (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
-    products: [ ['name','text','الاسم'], ['price','number','السعر'], ['oldPrice','number','السعر القديم'], ['badge','text','الشارة (مثل: جديد/خصم)'], ['image','url','رابط الصورة'], ['categoryId','text','معرف التصنيف الرئيسي'], ['subcategoryId','text','معرف التصنيف الفرعي'], ['deliveryText','text','نص مدة التسليم'], ['description','text','الوصف القصير'], ['details','textarea','تفاصيل المنتج (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    payments: [ ['title','text','اسم الطريقة'], ['displayName','text','الاسم الظاهر'], ['group','select','المجموعة'], ['accountHolder','text','اسم صاحب الحساب'], ['accountNumber','text','رقم الحساب/البطاقة'], ['iban','text','الآيبان'], ['extraFields','textarea','الحقول الإضافية label:value بكل سطر'], ['instructions','textarea','تعليمات الدفع'], ['icon','text','الأيقونة'], ['enabled','checkbox','مفعلة'], ['order','number','الترتيب'] ],
+    settings: [ ['storeName','text','اسم المتجر'], ['logoUrl','url','رابط الشعار'], ['tagline','text','الوصف القصير'], ['instagramUrl','url','رابط إنستغرام'], ['whatsappNumber','text','رقم واتساب'], ['defaultCurrency','text','العملة الافتراضية'], ['heroBadge','text','شارة الهيرو'], ['heroTitle','text','عنوان الهيرو'], ['heroText','textarea','نص الهيرو'], ['footerText','text','نص الفوتر'], ['tickerText','text','النص المتحرك أعلى الموقع'], ['tickerTargetType','select','نوع رابط الشريط'], ['tickerCategoryId','select','تصنيف الشريط'], ['tickerSubcategoryId','select','تفرع الشريط'], ['tickerCustomUrl','url','رابط مخصص للشريط'], ['bgColor','color','لون الخلفية'], ['bg2Color','color','الخلفية الثانوية'], ['surfaceColor','color','لون البطاقات'], ['surface2Color','color','سطح ثانوي'], ['primaryColor','color','اللون الرئيسي'], ['primaryDarkColor','color','اللون الرئيسي الداكن'], ['primaryLightColor','color','اللون الفاتح'], ['maroonColor','color','لون داعم'], ['textColor','color','لون النص الرئيسي'], ['text2Color','color','لون النص الثانوي'], ['mutedColor','color','اللون الهادئ'], ['active','checkbox','المتجر فعال'] ],
+    sliders: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['ctaLabel','text','نص الزر'], ['targetType','select','نوع الرابط'], ['categoryId','select','التصنيف الرئيسي'], ['subcategoryId','select','التصنيف الفرعي'], ['productId','select','المنتج المباشر'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    banners: [ ['title','text','العنوان'], ['image','url','رابط الصورة'], ['targetType','select','نوع الرابط'], ['categoryId','select','التصنيف الرئيسي'], ['subcategoryId','select','التصنيف الفرعي'], ['productId','select','المنتج المباشر'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    cards: [ ['title','text','العنوان'], ['subtitle','text','نص إضافي/فرعي'], ['image','url','رابط الصورة'], ['icon','text','أيقونة'], ['cardKind','select','نوع البطاقة'], ['categoryId','select','التصنيف الرئيسي'], ['subcategoryId','select','التصنيف الفرعي'], ['targetType','select','نوع الرابط'], ['productId','select','المنتج المباشر'], ['customUrl','url','رابط مخصص'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    categories: [ ['name','text','الاسم'], ['icon','text','الأيقونة'], ['image','url','رابط الصورة'], ['subtitle','text','عنوان فرعي'], ['description','text','الوصف'], ['parentId','select','التصنيف الأب'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
+    products: [ ['name','text','الاسم'], ['price','number','السعر'], ['oldPrice','number','السعر القديم'], ['badge','text','الشارة (مثل: جديد/خصم)'], ['image','url','رابط الصورة'], ['categoryId','select','التصنيف الرئيسي'], ['subcategoryId','select','التصنيف الفرعي'], ['deliveryText','text','نص مدة التسليم'], ['description','text','الوصف القصير'], ['details','textarea','تفاصيل المنتج (اختياري)'], ['order','number','الترتيب'], ['active','checkbox','نشط'] ],
     reviews: [ ['name','text'], ['image','url','صورة العميل'], ['text','text'], ['rating','number'], ['order','number'], ['active','checkbox'] ]
   };
 }
@@ -2096,6 +2096,26 @@ function formField(name, type, label = '') {
   const title = label || name;
   if (type === 'checkbox') return `<label class="toggle-row"><span>${title}</span><input type="checkbox" name="${name}" checked></label>`;
   if (type === 'textarea') return `<label class="field-group"><span>${title}</span><textarea class="field textarea-field" name="${name}" placeholder="${title}"></textarea></label>`;
+
+  if (type === 'select') {
+    let options = [];
+    if (name === 'targetType' || name === 'tickerTargetType') {
+      options = [['', 'بدون رابط'], ['product', 'منتج'], ['category', 'تصنيف رئيسي'], ['subcategory', 'تصنيف فرعي'], ['custom', 'رابط مخصص']];
+    } else if (name === 'categoryId' || name === 'tickerCategoryId') {
+      options = [['', 'اختر تصنيفاً'], ...topCategories().map(c => [c.id, c.name])];
+    } else if (name === 'subcategoryId' || name === 'tickerSubcategoryId' || name === 'parentId') {
+      options = [['', 'اختر تصنيفاً فرعياً / أباً'], ...state.categories.map(c => [c.id, (c.parentId ? '↳ ' : '') + c.name])];
+    } else if (name === 'productId') {
+      options = [['', 'اختر منتجاً'], ...state.products.map(p => [p.id, p.name])];
+    } else if (name === 'cardKind') {
+      options = [['section', 'قسم عادي'], ['shortcut', 'اختصار سريع'], ['vertical-character', 'شخصية طولية'], ['character-carousel', 'سلايدر شخصيات'], ['character', 'شخصية أفقية']];
+    } else if (name === 'group') {
+      options = [['bank', 'تحويل بنكي'], ['direct', 'دفع مباشر / إلكتروني']];
+    }
+
+    return `<label class="field-group"><span>${title}</span><select class="field" name="${name}">${options.map(opt => `<option value="${opt[0]}">${opt[1]}</option>`).join('')}</select></label>`;
+  }
+
   const inputType = type === 'number' ? 'number' : (type === 'color' ? 'color' : (type === 'url' ? 'url' : 'text'));
   const extra = type === 'color' ? ' data-color-input' : '';
   return `<label class="field-group ${type === 'color' ? 'color-field-group' : ''}"><span>${title}</span><input class="field" type="${inputType}" name="${name}" placeholder="${title}"${extra}></label>`;
@@ -2229,10 +2249,7 @@ async function deleteRecord(key, id) {
 async function saveRecord(key, id, payload) {
   if (!requireAdmin('saveRecord')) return;
   if (!validateAdminKey(key)) return;
-  if (key === 'payments') {
-    const current = state.paymentMethods || [];
-    savePaymentMethods(ids.map((id, index) => ({ ...(current.find(item => item.id === id) || {}), order: index + 1 })));
-  } else if (fb.ready) {
+  if (fb.ready && key !== 'payments') {
     const ref = fb.api.doc(fb.db, COLLECTIONS[key], id);
     await fb.api.setDoc(ref, payload, { merge: true });
     return;
