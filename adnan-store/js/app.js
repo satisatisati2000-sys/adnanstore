@@ -1010,7 +1010,6 @@ function handleSearch(e) {
   host.innerHTML = !term ? '' : results.length ? `<div class="search-results">${results.map(renderSearchCard).join('')}</div>` : emptyState('لا توجد نتائج');
   bindProductButtons(host);
   bindAccordionCategoryTriggers(host);
-  renderInlineReviewsBeforeFooter();
 }
 
 function renderSearchCard(item) {
@@ -1421,7 +1420,6 @@ function renderCategoryPage() {
   hero && (hero.innerHTML = `<div class="category-page-hero"><div class="page-hero-blur" style="background-image:url('${escapeHtml(heroImage)}')"></div><div class="page-hero-glass"><span class="eyebrow">التصنيفات</span><h1>${escapeHtml(title.textContent)}</h1><p>${escapeHtml(currentSub?.description || activeParent?.description || 'اختر المنتج المناسب لك من هذا القسم بواجهة أوضح وسريعة.')}</p></div></div>`);
   list.innerHTML = items.length ? `<div class="stack product-stack">${items.map(renderProductCard).join('')}</div>` : emptyState('لا توجد عناصر داخل هذا القسم');
   bindProductButtons(list);
-  renderInlineReviewsBeforeFooter();
 }
 
 
@@ -1485,7 +1483,6 @@ function renderProductPage() {
   document.title = `${item.name} | ${settings().storeName || 'المتجر'}`;
   bindProductButtons(host);
   bindAccordionCategoryTriggers(host);
-  renderInlineReviewsBeforeFooter();
 }
 
 function renderCartPage() {
