@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متجر عدنان</title>
+  <meta name="description" content="متجر عدنان">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <script>
+    window.__STORE_BOOT__ = {
+      brandId: 'adnan-store',
+      storeName: 'متجر عدنان',
+      description: 'واجهة عربية داكنة مع أقسام أغنى، بنرات أوضح، وإدارة كاملة قابلة للتخصيص.',
+      theme: {
+        bg: '#07080C', bg2: '#0E1118', surface: '#141924', surface2: '#1B2130', primary: '#C8A06B', primaryDark: '#8F663E', primaryLight: '#F2E4CD', maroon: '#604731', text: '#F8F3EE', text2: '#D9CEC3', muted: '#9E9389', line: 'rgba(242,228,205,0.12)', glow: 'rgba(200,160,107,0.22)'
+      }
+    };
+    (function () {
+      const boot = window.__STORE_BOOT__;
+      const root = document.documentElement;
+      root.dataset.brand = boot.brandId;
+      root.style.setProperty('--bg', boot.theme.bg);
+      root.style.setProperty('--bg-2', boot.theme.bg2);
+      root.style.setProperty('--surface', boot.theme.surface);
+      root.style.setProperty('--surface-2', boot.theme.surface2);
+      root.style.setProperty('--primary', boot.theme.primary);
+      root.style.setProperty('--primary-dark', boot.theme.primaryDark);
+      root.style.setProperty('--primary-light', boot.theme.primaryLight);
+      root.style.setProperty('--maroon', boot.theme.maroon);
+      root.style.setProperty('--text', boot.theme.text);
+      root.style.setProperty('--text-2', boot.theme.text2);
+      root.style.setProperty('--muted', boot.theme.muted);
+      root.style.setProperty('--line', boot.theme.line);
+      root.style.setProperty('--glow', boot.theme.glow);
+      root.style.colorScheme = 'dark';
+      const desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute('content', boot.description);
+      if (document.title && !document.title.includes(boot.storeName)) {
+        document.title = document.title.includes('|') ? `${document.title.split('|')[0].trim()} | ${boot.storeName}` : boot.storeName;
+      }
+    })();
+  </script>
+</head>
+<body data-page="home">
+  <div class="page-shell">
+    <div id="topbarHost">
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand brand--logo-only" href="./index.html" aria-label="متجر عدنان">
+      <span class="brand-logo-wrap brand-logo-wrap--bg" style="background-image:url('./images/logo.png')"></span>
+    </a>
+    <div class="top-actions">
+      <label class="currency-switcher"><span>SAR</span><select aria-label="اختر العملة"><option selected>ريال سعودي</option><option>درهم إماراتي</option><option>دولار أمريكي</option><option>يورو</option><option>دينار كويتي</option><option>ريال قطري</option><option>دينار بحريني</option><option>ريال عماني</option><option>دينار أردني</option><option>جنيه مصري</option><option>ليرة تركية</option><option>درهم مغربي</option></select></label>
+      <button class="icon-btn" type="button" aria-label="بحث"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <a class="icon-btn cart-trigger" href="./pages/cart.html" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.76L20 7H7"/></svg><span class="cart-badge hidden" data-cart-count>0</span></a>
+    </div>
+  </div>
+  <div class="ticker-wrap container"><a class="ticker-link" href="./pages/category.html?category=cat_accounts"><span class="ticker-track">خصومات اليوم متاحة الآن — اضغط لعرض الفئة المحددة</span></a></div>
+  <div class="search-drawer hidden" id="searchDrawer"><div class="search-panel"><div class="search-head"><strong>بحث</strong><button class="icon-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div class="search-input-wrap"><input class="search-input" type="search" placeholder="ابحث عن منتج"></div><div class="search-count"></div><div></div></div></div>
+</header></div>
+    <div id="floatingUiHost"></div>
+
+<main class="container home-main">
+  <section class="section" id="heroSection"><div class="hero-strip"><div class="hero-strip-grid"><a class="hero-strip-card hero-strip-card--lead" href="./pages/category.html?category=cat_accounts">
+      <img class="hero-strip-media" src="./images/hero/hero-main.webp" alt="حسابات نادرة وتجهيزات مرتبة">
+      <div class="hero-strip-overlay"></div>
+      <div class="hero-strip-content">
+        <span class="hero-strip-chip">تسوق الآن</span>
+        <strong>حسابات نادرة وتجهيزات مرتبة</strong>
+      </div>
+    </a><a class="hero-strip-card " href="./pages/category.html?category=cat_currency">
+      <img class="hero-strip-media" src="./images/hero/hero-side-1.webp" alt="شحن وجواهر بسرعة أعلى">
+      <div class="hero-strip-overlay"></div>
+      <div class="hero-strip-content">
+        <span class="hero-strip-chip">استعرض العروض</span>
+        <strong>شحن وجواهر بسرعة أعلى</strong>
+      </div>
+    </a><a class="hero-strip-card " href="./pages/category.html?category=cat_boost">
+      <img class="hero-strip-media" src="./images/hero/hero-side-2.webp" alt="باقات جاهزة للشراء الفوري">
+      <div class="hero-strip-overlay"></div>
+      <div class="hero-strip-content">
+        <span class="hero-strip-chip">عرض الأقسام</span>
+        <strong>باقات جاهزة للشراء الفوري</strong>
+      </div>
+    </a></div></div></section>
+  <section class="section" id="verticalCharacterSection"></section>
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">العروض</h2>
+    </div>
+    <div id="promoBanners"><div class="banner-grid banner-grid--revamp"><a class="banner-card banner-card--wide" href="./pages/category.html?category=cat_accounts">
+      <img class="banner-media" src="./images/banners/banner-01.jpg" alt="قسم الحسابات المميزة">
+      <div class="banner-overlay"></div>
+      <div class="banner-title"><span>Featured</span><strong>قسم الحسابات المميزة</strong></div>
+    </a><a class="banner-card banner-card--standard" href="./pages/category.html?category=cat_currency">
+      <img class="banner-media" src="./images/banners/banner-02.jpg" alt="قسم الشحن والجواهر">
+      <div class="banner-overlay"></div>
+      <div class="banner-title"><span>Hot</span><strong>قسم الشحن والجواهر</strong></div>
+    </a><a class="banner-card banner-card--standard" href="./pages/category.html?category=cat_boost">
+      <img class="banner-media" src="./images/banners/banner-03.jpg" alt="قسم التشكيلات النادرة">
+      <div class="banner-overlay"></div>
+      <div class="banner-title"><span>Hot</span><strong>قسم التشكيلات النادرة</strong></div>
+    </a><a class="banner-card banner-card--tall" href="#">
+      <img class="banner-media" src="./images/banners/banner-04.jpg" alt="واجهة بنرات بأسلوب كلاو">
+      <div class="banner-overlay"></div>
+      <div class="banner-title"><span>Hot</span><strong>واجهة بنرات بأسلوب كلاو</strong></div>
+    </a></div></div>
+  </section>
+  <section class="section" id="whyChooseSection">
+<div class="section-head section-head-center"><h2 class="section-title">مميزاتنا</h2></div>
+<div class="why-simple why-simple--claw">
+  <article class="why-simple-card"><strong>الأسرع</strong><span>تسليم الطلب فورياً في أغلب العروض.</span></article>
+  <article class="why-simple-card"><strong>الأسعار</strong><span>عروض واضحة وسعر منافس بدون تعقيد.</span></article>
+  <article class="why-simple-card"><strong>الضمان</strong><span>واجهة منظمة ودعم واضح وتجربة شراء مريحة.</span></article>
+</div></section>
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">التصنيفات</h2>
+      
+    </div>
+    <div id="cardsSection"></div></div>
+  </section>
+  <section class="section" id="shortcutSection"></section>
+  <section class="section" id="characterCarouselSection"></section>
+  <section id="productSections"><section class="section"><div class="section-head"><h2 class="section-title">الحسابات</h2></div><div class="product-rail"><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_acc_rare_01">
+            <img class="product-media" src="./images/cards/card-01.webp" alt="حساب نادر — تسليم فوري">
+            <span class="badge">نادر</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">حساب نادر — تسليم فوري</h3>
+            <div class="price-row"><strong class="price-current">149 ر.س</strong><span class="price-old">179 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_acc_rare_01">عرض المنتج</a></div>
+          </div>
+        </article><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_acc_rank_01">
+            <img class="product-media" src="./images/hero/hero-side-1.webp" alt="حساب رانكد احترافي">
+            <span class="badge">رائج</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">حساب رانكد احترافي</h3>
+            <div class="price-row"><strong class="price-current">219 ر.س</strong><span class="price-old">249 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_acc_rank_01">عرض المنتج</a></div>
+          </div>
+        </article></div></section><section class="section"><div class="section-head"><h2 class="section-title">الشحن والجواهر</h2></div><div class="product-rail"><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_cur_fast_01">
+            <img class="product-media" src="./images/cards/card-02.webp" alt="شحن سريع — باقة أساسية">
+            <span class="badge">سريع</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">شحن سريع — باقة أساسية</h3>
+            <div class="price-row"><strong class="price-current">34 ر.س</strong><span class="price-old">42 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_cur_fast_01">عرض المنتج</a></div>
+          </div>
+        </article><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_cur_value_01">
+            <img class="product-media" src="./images/banners/banner-02.jpg" alt="شحن اقتصادي — باقة متوسطة">
+            <span class="badge">أفضل قيمة</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">شحن اقتصادي — باقة متوسطة</h3>
+            <div class="price-row"><strong class="price-current">79 ر.س</strong><span class="price-old">95 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_cur_value_01">عرض المنتج</a></div>
+          </div>
+        </article></div></section><section class="section"><div class="section-head"><h2 class="section-title">الباقات الخاصة</h2></div><div class="product-rail"><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_boost_royal_01">
+            <img class="product-media" src="./images/cards/card-03.webp" alt="باقة رويال فاخرة">
+            <span class="badge">فاخر</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">باقة رويال فاخرة</h3>
+            <div class="price-row"><strong class="price-current">189 ر.س</strong><span class="price-old">229 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_boost_royal_01">عرض المنتج</a></div>
+          </div>
+        </article><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_boost_flash_01">
+            <img class="product-media" src="./images/banners/banner-03.jpg" alt="عرض خاطف محدود">
+            <span class="badge">Flash</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">عرض خاطف محدود</h3>
+            <div class="price-row"><strong class="price-current">59 ر.س</strong><span class="price-old">78 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_boost_flash_01">عرض المنتج</a></div>
+          </div>
+        </article><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_boost_01">
+            <img class="product-media" src="./images/cards/card-02.webp" alt="بوسط رانك سريع">
+            <span class="badge">سريع</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">بوسط رانك سريع</h3>
+            <div class="price-row"><strong class="price-current">119 ر.س</strong><span class="price-old">149 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_boost_01">عرض المنتج</a></div>
+          </div>
+        </article><article class="product-card product-card--portrait">
+          <a class="product-media-link" href="./pages/product.html?id=prod_boost_02">
+            <img class="product-media" src="./images/hero/hero-side-2.webp" alt="إنجاز مهام يومية">
+            <span class="badge">مميز</span>
+          </a>
+          <div class="product-body">
+            <h3 class="product-title">إنجاز مهام يومية</h3>
+            <div class="price-row"><strong class="price-current">89 ر.س</strong><span class="price-old">109 ر.س</span></div>
+            <div class="product-actions"><a class="btn btn-primary full" href="./pages/product.html?id=prod_boost_02">عرض المنتج</a></div>
+          </div>
+        </article></div></section></section>
+  <section class="section" id="characterSection"></section>
+  <section class="section" id="reviewsSection"><div class="section-head"><h2 class="section-title">آراء العملاء</h2></div><div class="review-rail review-rail--compact"><article class="review-card review-card--compact"><div class="review-row"><img class="review-avatar" src="./images/avatars/avatar-01.svg" alt="مستخدم موثق"><div><strong>مستخدم موثق</strong><div class="review-stars">★★★★★</div></div></div><p>الواجهة أنظف بكثير من القوالب العادية وتحسها جاهزة للبيع مباشرة.</p></article><article class="review-card review-card--compact"><div class="review-row"><img class="review-avatar" src="./images/avatars/avatar-02.svg" alt="مشتري جديد"><div><strong>مشتري جديد</strong><div class="review-stars">★★★★★</div></div></div><p>تقسيم البنرات والأقسام مريح جدًا خصوصًا على الجوال.</p></article><article class="review-card review-card--compact"><div class="review-row"><img class="review-avatar" src="./images/avatars/avatar-03.svg" alt="عميل دائم"><div><strong>عميل دائم</strong><div class="review-stars">★★★★★</div></div></div><p>الأدمن سهل ويخليك تعدل الصور والنصوص والمنتجات بدون صداع.</p></article><article class="review-card review-card--compact"><div class="review-row"><img class="review-avatar" src="./images/avatars/avatar-01.svg" alt="عميل متكرر"><div><strong>عميل متكرر</strong><div class="review-stars">★★★★★</div></div></div><p>المتجر صار غني جدًا بالأقسام والمنتجات، والوصول للعروض أسهل بكثير.</p></article></div></section>
+  <section class="section final-banner-section" id="finalBannerSection"><div class="section-head"><h2 class="section-title">عروض ختامية</h2></div><div class="final-banner-grid"><a class="final-banner-card" href="./pages/category.html?category=cat_boost"><img src="./images/banners/banner-03.jpg" alt="قسم التشكيلات النادرة"><div class="final-banner-overlay"></div><div class="final-banner-copy"><strong>قسم التشكيلات النادرة</strong><span>استعرض</span></div></a><a class="final-banner-card" href="#"><img src="./images/banners/banner-04.jpg" alt="واجهة بنرات بأسلوب كلاو"><div class="final-banner-overlay"></div><div class="final-banner-copy"><strong>واجهة بنرات بأسلوب كلاو</strong><span>استعرض</span></div></a></div></section>
+</main>
+
+    <div id="footerHost">
+<footer class="footer footer--clawish footer--home-final">
+  <div class="container footer-inner">
+    <div class="footer-claw-card footer-claw-card--simple">
+      <img class="footer-claw-logo" src="./images/logo.png" alt="متجر عدنان" onerror="this.style.display='none'">
+      <p class="footer-claw-copy">متجر عربي داكن وغني بالأقسام والعروض، جاهز للتخصيص الكامل من الأدمن.</p>
+      <div class="footer-claw-socials">
+        <a class="footer-social" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1"/></svg></a>
+        <a class="footer-social" href="./index.html" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-10.5Z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+    <div id="bottomNavHost"><nav class="bottom-nav"><div class="bottom-nav-inner">
+  <a class="bottom-link active" href="./index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-10.5Z"/></svg><span>الرئيسية</span></a>
+  <button class="bottom-link" type="button" data-open-drawer="true" aria-controls="categoryDrawer" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>التصنيفات</span></button>
+  <a class="bottom-link" href="./pages/cart.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.4 10.2a1 1 0 0 0 1 .8h8.9a1 1 0 0 0 1-.76L20 7H7"/></svg><span>السلة</span><span class="nav-badge hidden" data-cart-count>0</span></a>
+  <a class="bottom-link" href="./pages/login.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 3h2a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4h-2"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg><span>الحساب</span></a>
+  <a class="bottom-link" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1"/></svg><span>تواصل</span></a>
+</div></nav></div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

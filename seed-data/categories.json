@@ -1,0 +1,211 @@
+[
+  {
+    "id": "cat_accounts",
+    "name": "الحسابات",
+    "icon": "✦",
+    "image": "./images/cards/card-01.webp",
+    "subtitle": "منتجات جاهزة",
+    "description": "",
+    "parentId": "",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "cat_currency",
+    "name": "الشحن والجواهر",
+    "icon": "⚡",
+    "image": "./images/cards/card-02.webp",
+    "subtitle": "تسليم أسرع",
+    "description": "",
+    "parentId": "",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "cat_boost",
+    "name": "الباقات الخاصة",
+    "icon": "◆",
+    "image": "./images/cards/card-03.webp",
+    "subtitle": "قيم أعلى",
+    "description": "",
+    "parentId": "",
+    "order": 3,
+    "active": true
+  },
+  {
+    "id": "cat_ready",
+    "name": "قوالب جاهزة",
+    "icon": "◎",
+    "image": "./images/cards/card-04.webp",
+    "subtitle": "للتخصيص الكامل",
+    "description": "",
+    "parentId": "",
+    "order": 4,
+    "active": true
+  },
+  {
+    "id": "sub_accounts_rare",
+    "name": "حسابات نادرة",
+    "icon": "✦",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_accounts",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "sub_accounts_ranked",
+    "name": "حسابات رانكد",
+    "icon": "▲",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_accounts",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "sub_currency_fast",
+    "name": "شحن فوري",
+    "icon": "⚡",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_currency",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "sub_currency_value",
+    "name": "أفضل قيمة",
+    "icon": "◉",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_currency",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "sub_boost_royal",
+    "name": "باقات رويال",
+    "icon": "◆",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_boost",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "sub_boost_flash",
+    "name": "عروض خاطفة",
+    "icon": "☄",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_boost",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "sub_ready_templates",
+    "name": "مكونات جاهزة",
+    "icon": "◎",
+    "image": "",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_ready",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "cat_codes",
+    "name": "الأكواد والاشتراكات",
+    "icon": "⌁",
+    "image": "./images/cards/card-03.webp",
+    "subtitle": "تفعيل فوري",
+    "description": "",
+    "parentId": "",
+    "order": 6,
+    "active": true
+  },
+  {
+    "id": "cat_services",
+    "name": "الخدمات المميزة",
+    "icon": "✹",
+    "image": "./images/cards/card-04.webp",
+    "subtitle": "طلبات خاصة",
+    "description": "",
+    "parentId": "",
+    "order": 7,
+    "active": true
+  },
+  {
+    "id": "sub_boost_rank",
+    "name": "بوسط رانك",
+    "icon": "",
+    "image": "./images/cards/card-02.webp",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_boost",
+    "order": 51,
+    "active": true
+  },
+  {
+    "id": "sub_boost_fast",
+    "name": "إنجاز سريع",
+    "icon": "",
+    "image": "./images/cards/card-01.webp",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_boost",
+    "order": 52,
+    "active": true
+  },
+  {
+    "id": "sub_codes_monthly",
+    "name": "اشتراكات شهرية",
+    "icon": "",
+    "image": "./images/cards/card-03.webp",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_codes",
+    "order": 61,
+    "active": true
+  },
+  {
+    "id": "sub_codes_yearly",
+    "name": "اشتراكات سنوية",
+    "icon": "",
+    "image": "./images/cards/card-04.webp",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_codes",
+    "order": 62,
+    "active": true
+  },
+  {
+    "id": "sub_services_custom",
+    "name": "طلبات خاصة",
+    "icon": "",
+    "image": "./images/cards/card-04.webp",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_services",
+    "order": 71,
+    "active": true
+  },
+  {
+    "id": "sub_services_vip",
+    "name": "خدمة VIP",
+    "icon": "",
+    "image": "./images/cards/card-01.webp",
+    "subtitle": "",
+    "description": "",
+    "parentId": "cat_services",
+    "order": 72,
+    "active": true
+  }
+]

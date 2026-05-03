@@ -1,0 +1,47 @@
+[
+  {
+    "id": "slider_01",
+    "title": "حسابات نادرة وتجهيزات مرتبة",
+    "text": "سلايدر رئيسي عريض بأسلوب نظيف وفاخر مع CTA واضح جدًا.",
+    "image": "./images/hero/hero-main.webp",
+    "ctaLabel": "تسوق الآن",
+    "targetType": "category",
+    "targetId": "cat_accounts",
+    "categoryId": "cat_accounts",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "slider_02",
+    "title": "شحن وجواهر بسرعة أعلى",
+    "text": "عروض مرتبة مع حضور بصري أقوى على الجوال.",
+    "image": "./images/hero/hero-side-1.webp",
+    "ctaLabel": "استعرض العروض",
+    "targetType": "category",
+    "targetId": "cat_currency",
+    "categoryId": "cat_currency",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "slider_03",
+    "title": "باقات جاهزة للشراء الفوري",
+    "text": "خليها كما هي أو عدلها من الأدمن بالكامل.",
+    "image": "./images/hero/hero-side-2.webp",
+    "ctaLabel": "عرض الأقسام",
+    "targetType": "category",
+    "targetId": "cat_boost",
+    "categoryId": "cat_boost",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "",
+    "order": 3,
+    "active": true
+  }
+]

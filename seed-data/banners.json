@@ -1,0 +1,54 @@
+[
+  {
+    "id": "banner_01",
+    "title": "قسم الحسابات المميزة",
+    "image": "./images/banners/banner-01.jpg",
+    "targetType": "category",
+    "targetId": "cat_accounts",
+    "categoryId": "cat_accounts",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "banner_02",
+    "title": "قسم الشحن والجواهر",
+    "image": "./images/banners/banner-02.jpg",
+    "targetType": "category",
+    "targetId": "cat_currency",
+    "categoryId": "cat_currency",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "banner_03",
+    "title": "قسم التشكيلات النادرة",
+    "image": "./images/banners/banner-03.jpg",
+    "targetType": "category",
+    "targetId": "cat_boost",
+    "categoryId": "cat_boost",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "",
+    "order": 3,
+    "active": true
+  },
+  {
+    "id": "banner_04",
+    "title": "واجهة بنرات بأسلوب كلاو",
+    "image": "./images/banners/banner-04.jpg",
+    "targetType": "custom",
+    "targetId": "",
+    "categoryId": "",
+    "subcategoryId": "",
+    "productId": "",
+    "customUrl": "#",
+    "order": 4,
+    "active": true
+  }
+]
